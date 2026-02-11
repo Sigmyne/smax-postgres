@@ -40,19 +40,19 @@ jobs:
     - name: Check out xchange dependency
       uses: actions/checkout@v6
       with:
-        repository: Smithsonian/xchange
+        repository: Sigmyne/xchange
         path: xchange
 
     - name: Check out RedisX dependency
       uses: actions/checkout@v6
       with:
-        repository: Smithsonian/redisx
+        repository: Sigmyne/redisx
         path: redisx
 
     - name: Check out smax-clib dependency
       uses: actions/checkout@v6
       with:
-        repository: Smithsonian/smax-clib
+        repository: Sigmyne/smax-clib
         path: smax-clib
 
     - name: install package dependencies

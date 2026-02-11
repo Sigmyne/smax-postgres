@@ -51,19 +51,19 @@ jobs:
     - name: Check out xchange 
       uses: actions/checkout@v6
       with:
-        repository: Smithsonian/xchange
+        repository: Sigmyne/xchange
         path: xchange
 
     - name: Check out RedisX
       uses: actions/checkout@v6
       with:
-        repository: Smithsonian/redisx
+        repository: Sigmyne/redisx
         path: redisx
 
     - name: Check out smax-clib
       uses: actions/checkout@v6
       with:
-        repository: Smithsonian/smax-clib
+        repository: Sigmyne/smax-clib
         path: smax-clib
 
     - name: Build xchange dependency
