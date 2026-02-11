@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the [Smithsonian/smax-postgres](https://github.com/Smithsonian/smax-postgres) library will be 
+All notable changes to the [Sigmyne/smax-postgres](https://github.com/Sigmyne/smax-postgres) library will be 
 documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to 

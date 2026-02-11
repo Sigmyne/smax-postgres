@@ -3,8 +3,8 @@
 Record [SMA-X](https://docs.google.com/document/d/1eYbWDClKkV7JnJxv4MxuNBNV47dFXuUWu7C4Ve_YTf0/edit?usp=sharing) 
 history in PostgreSQL / TimescaleDB. It is free to use, in any way you like, without licensing restrictions.
 
- - [API documentation](https://smithsonian.github.io/smax-postgres/apidoc/html/files.html)
- - [Project pages](https://smithsonian.github.io/smax-postgres) on github.io
+ - [API documentation](https://sigmyne.github.io/smax-postgres/apidoc/html/files.html)
+ - [Project pages](https://sigmyne.github.io/smax-postgres) on github.io
 
 Author: Attila Kovacs
 
@@ -40,9 +40,9 @@ as well as regular snapshots of all selected SMA-X variables.
 The `smax-postgres` application has build and runtime dependencies on the following software:
 
  - __PostgreSQL__ installation and development files (`libpq.so` and `lipq.fe.h`).
- - [Smithsonian/smax-clib](https://github.com/Smithsonian/smax-clib)
- - [Smithsonian/redisx](https://github.com/Smithsonian/redisx)
- - [Smithsonian/xchange](https://github.com/Smithsonian/xchange)
+ - [Sigmyne/smax-clib](https://github.com/Sigmyne/smax-clib)
+ - [Sigmyne/redisx](https://github.com/Sigmyne/redisx)
+ - [Sigmyne/xchange](https://github.com/Sigmyne/xchange)
  - __Popt__ development libraries (`libpopt-dev`in Debian, or `popt-devel` in RPM distros)
  - (_optional_) __TimescaleDB__ extensions.
  - (_optional_) __systemd__ development files (`libsystemd.so` and `sd-daemon.h`).
@@ -90,17 +90,17 @@ prior to invoking `make`. The following build variables can be configured:
    use `doxygen` in your `PATH` (if any). You can also set it to `none` to disable document generation and the
    checking for a usable `doxygen` version entirely.
  
- - `XCHANGE`: If the [Smithsonian/xchange](https://github.com/Smithsonian/xchange) library is not installed on your
+ - `XCHANGE`: If the [Sigmyne/xchange](https://github.com/Sigmyne/xchange) library is not installed on your
    system (e.g. under `/usr`) set `XCHANGE` to where the distribution can be found. The build will expect to find 
    `xchange.h` under `$(XCHANGE)/include` and `libxchange.so` / `libxchange.a` under `$(XCHANGE)/lib` or else in the 
    default `LD_LIBRARY_PATH`.
  
- - `REDISX`: If the [Smithsonian/redisx](https://github.com/Smithsonian/redisx) library is not installed on your
+ - `REDISX`: If the [Sigmyne/redisx](https://github.com/Sigmyne/redisx) library is not installed on your
    system (e.g. under `/usr`) set `REDISX` to where the distribution can be found. The build will expect to find 
    `redisx.h` under `$(REDISX)/include` and `libredisx.so` / `libredisx.a` under `$(REDISX)/lib` or else in the 
    default `LD_LIBRARY_PATH`.
    
- - `SMAXLIB`: If the [Smithsonian/smax-clib](https://github.com/Smithsonian/smax-clib) library is not installed on 
+ - `SMAXLIB`: If the [Sigmyne/smax-clib](https://github.com/Sigmyne/smax-clib) library is not installed on 
    your system (e.g. under `/usr`) set `SMAXLIB` to where the distribution can be found. The build will expect to find 
    `smax.h` under `$(SMAXLIB)/include` and `libsmax.so` / `libsmax.a` under `$(SMAXLIB)/lib` or else in the default 
    `LD_LIBRARY_PATH`.

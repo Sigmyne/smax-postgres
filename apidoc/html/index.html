@@ -45,7 +45,7 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr id="projectrow">
-  <td id="projectlogo"><img alt="Logo" src="smithsonian-logo-55x55.png"/></td>
+  <td id="projectlogo"><img alt="Logo" src="Sigmyne-logo-55x55.png"/></td>
   <td id="projectalign">
    <div id="projectname">smax-postgres<span id="projectnumber">&#160;v0.9</span>
    </div>
@@ -117,8 +117,8 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README-smax-postgres"></a> Record <a href="https://docs.google.com/document/d/1eYbWDClKkV7JnJxv4MxuNBNV47dFXuUWu7C4Ve_YTf0/edit?usp=sharing">SMA-X</a> history in PostgreSQL / TimescaleDB. It is free to use, in any way you like, without licensing restrictions.</p>
 <ul>
-<li><a href="https://smithsonian.github.io/smax-postgres/apidoc/html/files.html">API documentation</a></li>
-<li><a href="https://smithsonian.github.io/smax-postgres">Project pages</a> on github.io</li>
+<li><a href="https://sigmyne.github.io/smax-postgres/apidoc/html/files.html">API documentation</a></li>
+<li><a href="https://sigmyne.github.io/smax-postgres">Project pages</a> on github.io</li>
 </ul>
 <p>Author: Attila Kovacs</p>
 <p>Last Updated: 18 September 2024</p>
@@ -144,9 +144,9 @@ Prerequisites</h2>
 <p>The <code>smax-postgres</code> application has build and runtime dependencies on the following software:</p>
 <ul>
 <li><b>PostgreSQL</b> installation and development files (<code>libpq.so</code> and <code>lipq.fe.h</code>).</li>
-<li><a href="https://github.com/Smithsonian/smax-clib">Smithsonian/smax-clib</a></li>
-<li><a href="https://github.com/Smithsonian/redisx">Smithsonian/redisx</a></li>
-<li><a href="https://github.com/Smithsonian/xchange">Smithsonian/xchange</a></li>
+<li><a href="https://github.com/Sigmyne/smax-clib">Sigmyne/smax-clib</a></li>
+<li><a href="https://github.com/Sigmyne/redisx">Sigmyne/redisx</a></li>
+<li><a href="https://github.com/Sigmyne/xchange">Sigmyne/xchange</a></li>
 <li><b>Popt</b> development libraries (<code>libpopt-dev</code>in Debian, or <code>popt-devel</code> in RPM distros)</li>
 <li>(<em>optional</em>) <b>TimescaleDB</b> extensions.</li>
 <li>(<em>optional</em>) <b>systemd</b> development files (<code>libsystemd.so</code> and <code>sd-daemon.h</code>).</li>
@@ -170,9 +170,9 @@ Building &lt;tt&gt;smax-postgres&lt;/tt&gt;</h2>
 <li><code>LDFLAGS</code>: Extra linker flags (default: <em>not set</em>). Note, <code>-lm -pthread -lsmax -lredisx -lxchange -lpq -lpopt</code> will be added automatically.</li>
 <li><code>CHECKEXTRA</code>: Extra options to pass to <code>cppcheck</code> for the <code>make check</code> target</li>
 <li><code>DOXYGEN</code>: Specify the <code>doxygen</code> executable to use for generating documentation. If not set (default), <code>make</code> will use <code>doxygen</code> in your <code>PATH</code> (if any). You can also set it to <code>none</code> to disable document generation and the checking for a usable <code>doxygen</code> version entirely.</li>
-<li><code>XCHANGE</code>: If the <a href="https://github.com/Smithsonian/xchange">Smithsonian/xchange</a> library is not installed on your system (e.g. under <code>/usr</code>) set <code>XCHANGE</code> to where the distribution can be found. The build will expect to find <code><a class="elRef" href="../../xchange/apidoc/html/xchange_8h.html">xchange.h</a></code> under <code>$(XCHANGE)/include</code> and <code>libxchange.so</code> / <code>libxchange.a</code> under <code>$(XCHANGE)/lib</code> or else in the default <code>LD_LIBRARY_PATH</code>.</li>
-<li><code>REDISX</code>: If the <a href="https://github.com/Smithsonian/redisx">Smithsonian/redisx</a> library is not installed on your system (e.g. under <code>/usr</code>) set <code>REDISX</code> to where the distribution can be found. The build will expect to find <code><a class="elRef" href="../../redisx/apidoc/html/redisx_8h.html">redisx.h</a></code> under <code>$(REDISX)/include</code> and <code>libredisx.so</code> / <code>libredisx.a</code> under <code>$(REDISX)/lib</code> or else in the default <code>LD_LIBRARY_PATH</code>.</li>
-<li><code>SMAXLIB</code>: If the <a href="https://github.com/Smithsonian/smax-clib">Smithsonian/smax-clib</a> library is not installed on your system (e.g. under <code>/usr</code>) set <code>SMAXLIB</code> to where the distribution can be found. The build will expect to find <code><a class="elRef" href="../../smax-clib/apidoc/html/smax_8h.html">smax.h</a></code> under <code>$(SMAXLIB)/include</code> and <code>libsmax.so</code> / <code>libsmax.a</code> under <code>$(SMAXLIB)/lib</code> or else in the default <code>LD_LIBRARY_PATH</code>.</li>
+<li><code>XCHANGE</code>: If the <a href="https://github.com/Sigmyne/xchange">Sigmyne/xchange</a> library is not installed on your system (e.g. under <code>/usr</code>) set <code>XCHANGE</code> to where the distribution can be found. The build will expect to find <code><a class="elRef" href="../../xchange/apidoc/html/xchange_8h.html">xchange.h</a></code> under <code>$(XCHANGE)/include</code> and <code>libxchange.so</code> / <code>libxchange.a</code> under <code>$(XCHANGE)/lib</code> or else in the default <code>LD_LIBRARY_PATH</code>.</li>
+<li><code>REDISX</code>: If the <a href="https://github.com/Sigmyne/redisx">Sigmyne/redisx</a> library is not installed on your system (e.g. under <code>/usr</code>) set <code>REDISX</code> to where the distribution can be found. The build will expect to find <code><a class="elRef" href="../../redisx/apidoc/html/redisx_8h.html">redisx.h</a></code> under <code>$(REDISX)/include</code> and <code>libredisx.so</code> / <code>libredisx.a</code> under <code>$(REDISX)/lib</code> or else in the default <code>LD_LIBRARY_PATH</code>.</li>
+<li><code>SMAXLIB</code>: If the <a href="https://github.com/Sigmyne/smax-clib">Sigmyne/smax-clib</a> library is not installed on your system (e.g. under <code>/usr</code>) set <code>SMAXLIB</code> to where the distribution can be found. The build will expect to find <code><a class="elRef" href="../../smax-clib/apidoc/html/smax_8h.html">smax.h</a></code> under <code>$(SMAXLIB)/include</code> and <code>libsmax.so</code> / <code>libsmax.a</code> under <code>$(SMAXLIB)/lib</code> or else in the default <code>LD_LIBRARY_PATH</code>.</li>
 </ul>
 <p>After configuring, you can simply run <code>make</code>, which will build <code>bin/smax-postgres</code>, and user documentation. You may also build other <code>make</code> target(s). (You can use <code>make help</code> to get a summary of the available <code>make</code> targets).</p>
 <p>Now you may compile <code>smax-postgres</code>:</p>
