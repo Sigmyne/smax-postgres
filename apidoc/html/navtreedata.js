@@ -60,7 +60,7 @@ var NAVTREE =
           [ "<tt>sample <n> <pattern></tt>", "index.html#autotoc_md37", null ]
         ] ]
       ] ],
-      [ "[Unreleased]", "../../smax-clib/apidoc/html/md_CHANGELOG.html#autotoc_md1", null ]
+      [ "[1.0.0] - 2026-02-16", "../../smax-clib/apidoc/html/md_CHANGELOG.html#autotoc_md1", null ]
     ] ],
     [ "Contributing to smax-postgres", "../../smax-clib/apidoc/html/md_CONTRIBUTING.html", null ],
     [ "Data Structures", "annotated.html", [

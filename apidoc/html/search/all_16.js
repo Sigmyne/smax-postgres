@@ -1,7 +1,10 @@
 var searchData=
 [
-  ['value_0',['value',['../../../xchange/apidoc/html/structXField.html#a0f61d63b009d0880a89c843bd50d8d76',1,'XField::value'],['../../../redisx/apidoc/html/structRedisEntry.html#a4e9aec275e566b978a3ccb4e043d8c61',1,'RedisEntry::value'],['../../../redisx/apidoc/html/structRedisMap.html#a449b0c7dacd31c5e7edf071da3bda96a',1,'RedisMap::value'],['../../../redisx/apidoc/html/structRESP.html#a0f61d63b009d0880a89c843bd50d8d76',1,'RESP::value']]],
-  ['variable_1',['Variable',['../structVariable.html',1,'']]],
-  ['variable_20specific_20options_2',['Variable-specific options',['../index.html#autotoc_md30',1,'']]],
-  ['varname_5fid_3',['VARNAME_ID',['../postgres-backend_8c.html#ac99c0b645384c1aed0806294bb88cd15',1,'postgres-backend.c']]]
+  ['unit_0',['unit',['../../../smax-clib/apidoc/html/structXCoordinateAxis.html#a5a80171400807274a7fa9c95a104dc78',1,'XCoordinateAxis::unit'],['../structVariable.html#a5a80171400807274a7fa9c95a104dc78',1,'Variable::unit']]],
+  ['update_20frequency_20options_1',['Update frequency options',['../index.html#autotoc_md26',1,'']]],
+  ['update_5finterval_20interval_20tt_2',['&lt;tt&gt;update_interval &lt;interval&gt;&lt;/tt&gt;',['../index.html#autotoc_md29',1,'']]],
+  ['update_5ftimeout_3',['UPDATE_TIMEOUT',['../smax-collector_8c.html#a4bd482389a4bc42900d92d6b8a4db73b',1,'smax-collector.c']]],
+  ['updatetime_4',['updateTime',['../structVariable.html#a5edf2705990f16a8ea55737a41bd6ba9',1,'Variable']]],
+  ['use_5fhypertables_201_200_20tt_5',['&lt;tt&gt;use_hypertables &lt;1|0&gt;&lt;/tt&gt;',['../index.html#autotoc_md25',1,'']]],
+  ['user_20name_20tt_6',['&lt;tt&gt;sql_user &lt;user-name&gt;&lt;/tt&gt;',['../index.html#autotoc_md24',1,'']]]
 ];
