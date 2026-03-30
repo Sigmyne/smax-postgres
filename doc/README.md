@@ -1,5 +1,3 @@
-<img src="/smax-postgres/resources/CfA-logo.png" alt="CfA logo" width="400" height="67" align="right">
-<br clear="all">
 Record [SMA-X](https://docs.google.com/document/d/1eYbWDClKkV7JnJxv4MxuNBNV47dFXuUWu7C4Ve_YTf0/edit?usp=sharing) 
 history in PostgreSQL / TimescaleDB. It is free to use, in any way you like, without licensing restrictions.
 
