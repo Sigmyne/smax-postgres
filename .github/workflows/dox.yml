@@ -99,6 +99,9 @@ jobs:
         additional-packages: font-roboto
         working-directory: ./smax-postgres
 
+    - name: Insert Google analytics tracker
+      run: for file in smax-postgres/apidoc/html/*.html ; do sudo sed -i "/<\/head>/e cat resources/analytics.html" $file ; done
+
     - name: Checkout gh-pages
       uses: actions/checkout@v6
       with:
@@ -109,10 +112,7 @@ jobs:
       run: mkdir -p site/doc
 
     - name: Copy README
-      run: |
-        echo '<img src="/smax-postgres/resources/CfA-logo.png" alt="CfA logo" width="400" height="67" align="right">' > site/doc/README.md
-        echo '<br clear="all">' >> site/doc/README.md
-        cat smax-postgres/README-smax-postgres.md >> site/doc/README.md
+      run: cp smax-postgres/README-smax-postgres.md site/doc/README.md
 
     - name: Copy CHANGELOG
       run: cp smax-postgres/CHANGELOG.md site/doc/
