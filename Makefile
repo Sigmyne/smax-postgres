@@ -86,8 +86,7 @@ dox: README-smax-postgres.md
 
 .INTERMEDIATE: Doxyfile.local
 Doxyfile.local: Doxyfile Makefile
-	sed "s:resources/header.html::g" $< > $@
-	sed -i "s:^TAGFILES.*$$:TAGFILES = :g" $@
+	sed "s:^TAGFILES.*$$:TAGFILES = :g" $< > $@
 
 # Local documentation without specialized headers. The resulting HTML documents do not have
 # Google Search or Analytics tracking info.

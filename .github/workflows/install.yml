@@ -33,17 +33,10 @@ jobs:
       REDISX: ../redisx
       SMAXLIB: ../smax-clib
     steps:
-    - name: install PostgreSQL
-      run: sudo apt-get install libpq-dev
-
-    - name: install systemd development files
-      run: sudo apt-get install libsystemd-dev
-
-    - name: install popt development files
-      run: sudo apt-get install libpopt-dev
-
-    - name: install doxygen
-      run: sudo apt-get install doxygen
+    - name: install requirements
+      run: |
+        sudo apt-get update -q -y
+        sudo apt-get install libpq-dev libsystemd-dev libpopt-dev doxygen
 
     - name: Check out smax-clib 
       uses: actions/checkout@v6
