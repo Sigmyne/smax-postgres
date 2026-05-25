@@ -333,7 +333,7 @@ static Update *QueueForUpdate(const char *id, const RedisEntry *units, int nu, c
   v->grabTime = grabTime;
 
   if(units) {
-    RedisEntry *unit = bsearch(id, units, nu, sizeof(RedisEntry), (__compar_fn_t) strcmp);
+    RedisEntry *unit = (RedisEntry *) bsearch(id, units, nu, sizeof(RedisEntry), (__compar_fn_t) strcmp);
     if(unit) {
       // Move reference to variable.
       v->unit = unit->value;

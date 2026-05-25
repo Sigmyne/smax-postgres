@@ -53,7 +53,7 @@ The `smax-postgres` application has build and runtime dependencies on the follow
  - [Sigmyne/smax-clib](https://github.com/Sigmyne/smax-clib)
  - [Sigmyne/redisx](https://github.com/Sigmyne/redisx)
  - [Sigmyne/xchange](https://github.com/Sigmyne/xchange)
- - __Popt__ development libraries (`libpopt-dev`in Debian, or `popt-devel` in RPM distros)
+ - __Popt__ development libraries (`libpopt-dev` in Debian, or `popt-devel` in RPM distros)
  - (_optional_) __TimescaleDB__ extensions.
  - (_optional_) __systemd__ development files (`libsystemd.so` and `sd-daemon.h`).
 
@@ -306,7 +306,7 @@ Host name or IP address of the SMA-X server (default 'smax').
 
 Password for authenticating user on the SQL server (no default).
 
-#### `sql_db` <db-name>`
+#### `sql_db <db-name>`
 
 SQL database name to use (default is 'smax_db'). 
 

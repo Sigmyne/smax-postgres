@@ -88,7 +88,7 @@ static void unlockQueue();
 
 static int ensureCommandCapacity(int n);
 
-static char *printSQLString(const char *s, int l, char *dst);
+static size_t printSQLString(const char *s, int l, char *dst, size_t len);
 static int getStringSize(XType type);
 
 static TableDescriptor *getTableDescriptor(const Variable *u);
@@ -107,11 +107,11 @@ static int sqlConnectRetry(int attempts);
 static int sqlInsertVariable(const Variable *u);
 static int sqlAddValues(const Variable *u);
 
-static int printColumnFormat(int ncols, char *fmt);
+static int printColumnFormat(int ncols, char *fmt, size_t len);
 static int printSQLType(XType type, char *dst);
 static int cmpSQLType(const char *a, const char *b);
-static char *appendValues(const Variable *u, char *dst);
-static char *appendValue(const void *data, XType type, char *dst);
+static size_t appendValue(const void *data, XType type, char *dst, size_t len);
+static size_t appendValues(const Variable *u, char *dst, size_t len);
 
 // Local variables --------------------------------------------------------->
 static pthread_mutex_t qMutex = PTHREAD_MUTEX_INITIALIZER;  ///< Queue mutex
@@ -120,6 +120,7 @@ static Variable *first = NULL, *last = NULL;                ///< {mut} Queue hea
 
 static PGconn *sql_db;      ///< The current SQL connection information
 static char *cmd;           ///< Buffer for assembling long SQL commands in.
+static size_t cmdSize;         ///< [bytes] allocation size for cmd
 
 static struct hsearch_data lookup;                          ///< Local cache hash table for stored variabled
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;   ///< mutex for atomic transaction blocks.
@@ -131,7 +132,7 @@ static int getStringType(int maxlen, char *buf) {
     return -1;
   }
 
-  strcpy(buf, SQL_TEXT);
+  strncpy(buf, SQL_TEXT, SQL_TYPE_LEN);
   return 0;
 }
 
@@ -150,7 +151,7 @@ void *SQLThread() {
   ensureCommandCapacity(100 + SQL_TABLE_NAME_LEN)
 
   fprintf(stderr, "!FIX! all scalar dims -> 0.\n");
-  sprintf(cmd, "UPDATE " META_NAME_PATTERN " SET ndim = 0, shape = NULL WHERE ndim = 1 AND shape = '1';", t->index);
+  x_snprintf(cmd, cmdSize, "UPDATE " META_NAME_PATTERN " SET ndim = 0, shape = NULL WHERE ndim = 1 AND shape = '1';", t->index);
   sqlExecSimple(cmd);
 # endif
 
@@ -311,7 +312,7 @@ static void initCache() {
     }
 
     ensureCommandCapacity(200 + SQL_TABLE_NAME_LEN);
-    sprintf(cmd, "select COLUMN_NAME, DATA_TYPE from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '" TABLE_NAME_PATTERN "';", table);
+    x_snprintf(cmd, cmdSize, "select COLUMN_NAME, DATA_TYPE from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '" TABLE_NAME_PATTERN "';", table);
     success = sqlExec(cmd, &columns);
     if (!success) {
       PQclear(tables);
@@ -345,17 +346,17 @@ static void initCache() {
     }
 
     // Check and fix up column names.
-    printColumnFormat(nCols, colFmt);
+    printColumnFormat(nCols, colFmt, sizeof(colFmt));
 
     for(k = 0; k < nCols; k++) {
       const char *name = PQgetvalue(columns, firstDataCol + k, 0);
       char colName[SQL_COL_NAME_LEN];
 
-      sprintf(colName, colFmt, k);
+      x_snprintf(colName, sizeof(colName), colFmt, k);
 
       if(strcmp(name, colName) != 0) {
         fprintf(stderr, "!FIX! %s: column name %s -> %s\n", id, name, colName);
-        sprintf(cmd, "ALTER TABLE " TABLE_NAME_PATTERN " RENAME COLUMN %s TO %s;", table, name, colName);
+        x_snprintf(cmd, cmdSize, "ALTER TABLE " TABLE_NAME_PATTERN " RENAME COLUMN %s TO %s;", table, name, colName);
         sqlExecSimple(cmd);
       }
     }
@@ -402,8 +403,6 @@ static void initCache() {
  *                  bytes, or ERROR_RETURN if the (re)allocation failed.
  */
 static int ensureCommandCapacity(int n) {
-  static int cmdSize = 0;
-
   // Don't bother with tiny buffers, start with an minimum...
   if(n < MIN_CMD_SIZE) n = MIN_CMD_SIZE;
 
@@ -416,7 +415,7 @@ static int ensureCommandCapacity(int n) {
     cmd = realloc(cmd, cmdSize);
     x_check_alloc(cmd);
 
-    dprintf("Growing command buffer to %d bytes.\n", cmdSize);
+    dprintf("Growing command buffer to %zu bytes.\n", cmdSize);
   }
 
   if(!cmd) {
@@ -452,28 +451,30 @@ static int getStringSize(XType type) {
  * @param s     An ASCII string value
  * @param l     (bytes) The length of the string which may be unterminated.
  * @param dst   Destination buffer in which to write string.
+ * @param len   Maximum number of characters that may be printed into dst.
  *
- * @return      Pointer to the position after the SQL-ized string in the destination buffer
+ * @return      The number of bytes printed into dst.
  */
-static char *printSQLString(const char *s, int l, char *dst) {
+static size_t printSQLString(const char *s, int l, char *dst, size_t len) {
+  size_t pos = 0;
   int i;
 
-  if(!s || !dst) {
+  if(!s || !dst || len < 1) {
     errno = EINVAL;
-    return dst;
+    return 0;
   }
 
-  *(dst++) = '\'';
+  dst[pos++] = '\'';
 
   for(i=0; i < l && s[i]; i++) {
     const char c = s[i];
-    *(dst++) = c;
-    if(c == '\'') *(dst++) = '\'';        // escape single quotes by doubling them
+    if(pos < len) dst[pos++] = c;
+    if(c == '\'' && pos < len) dst[pos++] = '\'';        // escape single quotes by doubling them
   }
 
-  *(dst++) = '\'';
+  if(pos < len) dst[pos++] = '\'';
 
-  return dst;
+  return pos;
 }
 
 
@@ -484,7 +485,7 @@ static char *printSQLString(const char *s, int l, char *dst) {
  *
  * \param type          The xchange data type, e.g. X_SHORT
  * \param dst           String location at which to append the corresponding
- *                      SQL type.
+ *                      SQL type. It must be at least SQL_TYPE_LEN in size.
  *
  * \return              The number of characters printed
  *
@@ -500,19 +501,19 @@ static int printSQLType(XType type, char *dst) {
   }
   else switch (type) {
     case X_BOOLEAN:
-      return sprintf(dst, SQL_BOOLEAN);
+      return x_snprintf(dst, SQL_TYPE_LEN, SQL_BOOLEAN);
     case X_BYTE:
-      return sprintf(dst, SQL_INT8);
+      return x_snprintf(dst, SQL_TYPE_LEN, SQL_INT8);
     case X_INT16:
-      return sprintf(dst, SQL_INT16);
+      return x_snprintf(dst, SQL_TYPE_LEN, SQL_INT16);
     case X_INT32:
-      return sprintf(dst, SQL_INT32);
+      return x_snprintf(dst, SQL_TYPE_LEN, SQL_INT32);
     case X_INT64:
-      return sprintf(dst, SQL_INT64);
+      return x_snprintf(dst, SQL_TYPE_LEN, SQL_INT64);
     case X_FLOAT:
-      return sprintf(dst, SQL_FLOAT);
+      return x_snprintf(dst, SQL_TYPE_LEN, SQL_FLOAT);
     case X_DOUBLE:
-      return sprintf(dst, SQL_DOUBLE);
+      return x_snprintf(dst, SQL_TYPE_LEN, SQL_DOUBLE);
     default:
       fprintf(stderr, "WARNING! no matching SQL type (%d)\n", type);
   }
@@ -545,23 +546,24 @@ static int cmpSQLType(const char *a, const char *b) {
  *
  * \param u     Pointer to the variable
  * \param dst   String location at which to append string list of elements
+ * \param len   Maximum number of bytes that can be written to dst.
  *
- * \return      String location after the insertion (or same as dst if no string were appended).
+ * \return      Number of character printed to dst, excluding termination.
  *
  */
-static char *appendValues(const Variable *u, char *dst) {
+static size_t appendValues(const Variable *u, char *dst, size_t len) {
   const XField *f;
   int eSize, step = 1;
 
   if(!u || !dst) {
     errno = EINVAL;
-    return dst;
+    return 0;
   }
 
   f = &u->field;
   if(!f->value) {
     errno = EINVAL;
-    return dst;
+    return 0;
   }
 
   eSize = xElementSizeOf(f->type);
@@ -569,13 +571,14 @@ static char *appendValues(const Variable *u, char *dst) {
   if(u->sampling > 1) step = u->sampling;
 
   if(f->ndim > 0) {
+    size_t pos = 0;
     char *data = (char *) f->value;
     int i, n = getSampleCount(u);
-    for(i = 0; i < n; i++) dst = appendValue(&data[i * step * eSize], f->type, dst);
+    for(i = 0; i < n && pos < len; i++) pos += appendValue(&data[i * step * eSize], f->type, dst, (int) (len - pos));
+    return pos;
   }
-  else dst = appendValue(f->value, f->type, dst);
 
-  return dst;
+  return appendValue(f->value, f->type, dst, len);
 }
 
 
@@ -588,39 +591,49 @@ static char *appendValues(const Variable *u, char *dst) {
  * \param type          Element type, e.g. SHORT_TYPE
  * \param elementSize   Bytes occupied by this element
  * \param dst           String location to append value at.
+ * \param len           Maximum number of bytes that may be printed to dst.
  *
- * \return              String location after the inserted element.
+ * \return              Number of bytes printed to dst, excluding termination.
  */
-static char *appendValue(const void *data, XType type, char *dst) {
+static size_t appendValue(const void *data, XType type, char *dst, size_t len) {
+  size_t pos;
+
   if(!dst) {
     errno = EINVAL;
-    return dst;
+    return 0;
   }
 
-  dst += sprintf(dst, SQL_SEP);
+  pos = x_snprintf(dst, len, SQL_SEP);
+
+  if(pos >= len) {
+    errno = EOVERFLOW;
+    return len;
+  }
+
+  dst += pos;
 
   if(xIsCharSequence(type)) {
-    return printSQLString((char *) data, xElementSizeOf(type), dst);
+    return printSQLString((char *) data, xElementSizeOf(type), dst, len - pos);
   }
 
-  if (!data) return dst + sprintf(dst, "NULL");
+  if (!data) return pos + x_snprintf(dst, len - pos, "NULL");
 
   switch (type) {
 
-    case X_BOOLEAN: return dst + sprintf(dst, "%s",*(boolean *) data ? "true" : "false");
+    case X_BOOLEAN: return pos + x_snprintf(dst, len - pos, "%s",*(boolean *) data ? "true" : "false");
 
-    case X_BYTE: return dst + sprintf(dst, "%hhd", *(char *) data);
+    case X_BYTE: return pos + x_snprintf(dst, len - pos, "%hhd", *(char *) data);
 
-    case X_SHORT: return dst + sprintf(dst, "%hd", *(int16_t *) data);
+    case X_SHORT: return pos + x_snprintf(dst, len - pos, "%hd", *(int16_t *) data);
 
-    case X_INT: return dst + sprintf(dst, "%d", *(int32_t *) data);
+    case X_INT: return pos + x_snprintf(dst, len - pos, "%d", *(int32_t *) data);
 
-    case X_LONG: return dst + sprintf(dst, "%ld", *(int64_t *) data);
+    case X_LONG: return pos + x_snprintf(dst, len - pos, "%ld", *(int64_t *) data);
 
     case X_FLOAT: {
       float f = *(float *) data;
-      if(isfinite(f)) return dst + sprintf(dst, "%.7g", f);      // Was %.7e
-      return dst + sprintf(dst, "'NaN'");
+      if(isfinite(f)) return pos + x_snprintf(dst, len - pos, "%.7g", f);      // Was %.7e
+      return pos + x_snprintf(dst, len - pos, "'NaN'");
     }
 
     case X_DOUBLE: {
@@ -628,23 +641,21 @@ static char *appendValue(const void *data, XType type, char *dst) {
       double d = *(double *) data;
       if(isfinite(d)) {
         double a = fabs(d);
-        if(a < SQL_MIN_DOUBLE) return dst + sprintf(dst, "0.0");
-        if(a > SQL_MAX_DOUBLE) return dst + sprintf(dst, "'NaN'");
-        return dst + sprintf(dst, "%.16lg", d);     // %.16e
+        if(a < SQL_MIN_DOUBLE) return pos + x_snprintf(dst, len - pos, "0.0");
+        if(a > SQL_MAX_DOUBLE) return pos + x_snprintf(dst, len - pos, "'NaN'");
+        return pos + x_snprintf(dst, len - pos, "%.16lg", d);     // %.16e
       }
-      return dst + sprintf(dst, "'NaN'");
+      return pos + x_snprintf(dst, len - pos, "'NaN'");
     }
 
     case X_STRING: {
       const char *s = *(char **) data;
-      return printSQLString(s, strlen(s), dst);
+      return printSQLString(s, strlen(s), dst, len - pos);
     }
     default:
       fprintf(stderr, "WARNING! addValue(): Unknown data type (%d)\n", type);
-      return dst + sprintf(dst, "NULL");
+      return pos + x_snprintf(dst, len - pos, "NULL");
   }
-
-  return dst;
 }
 
 
@@ -788,7 +799,7 @@ static TableDescriptor *addVariable(const char *id, const Variable *u) {
 }
 
 
-static int printColumnFormat(int ncols, char *fmt) {
+static int printColumnFormat(int ncols, char *fmt, size_t len) {
   int digits;
 
   if(!fmt) {
@@ -800,7 +811,7 @@ static int printColumnFormat(int ncols, char *fmt) {
   else ncols--;
 
   digits = 1 + (int) floor(log10(ncols));
-  return sprintf(fmt, COL_NAME_STEM "%%0%dd", digits);
+  return x_snprintf(fmt, len, COL_NAME_STEM "%%0%dd", digits);
 }
 
 
@@ -835,7 +846,7 @@ static int sqlBootstrap(const char *owner, const char *passwd) {
     if(sqlConnect(owner, passwd, NULL) != SUCCESS_RETURN) return ERROR_RETURN;
 
     // Create the database and assign the database to the user
-    sprintf(cmd, "CREATE DATABASE %s OWNER %s;", getSQLDatabaseName(), getSQLUserName());
+    x_snprintf(cmd, cmdSize, "CREATE DATABASE %s OWNER %s;", getSQLDatabaseName(), getSQLUserName());
     sqlExecSimple(cmd);
     sqlDisconnect();
   }
@@ -847,11 +858,11 @@ static int sqlBootstrap(const char *owner, const char *passwd) {
   // Enable the TimescaleDB extension (if configured)
   if(isUseHyperTables()) sqlExecSimple("CREATE EXTENSION IF NOT EXISTS timescaledb;");
 
-  sprintf(cmd, "CREATE TABLE " MASTER_TABLE " (" VARNAME_ID " " SQL_VARNAME " PRIMARY KEY, tid " SQL_SERIAL " UNIQUE);");
+  x_snprintf(cmd, cmdSize, "CREATE TABLE " MASTER_TABLE " (" VARNAME_ID " " SQL_VARNAME " PRIMARY KEY, tid " SQL_SERIAL " UNIQUE);");
   sqlExecSimple(cmd);
 
   // Add indexing to the 'titles' table for faster access.
-  sprintf(cmd, "CREATE UNIQUE INDEX " MASTER_TABLE "_index_" VARNAME_ID " ON " MASTER_TABLE " (" VARNAME_ID ");");
+  x_snprintf(cmd, cmdSize, "CREATE UNIQUE INDEX " MASTER_TABLE "_index_" VARNAME_ID " ON " MASTER_TABLE " (" VARNAME_ID ");");
   sqlExecSimple(cmd);
 
   sqlDisconnect();
@@ -901,7 +912,7 @@ static int sqlCreateTable(const Variable *u, int id) {
   char fmt[SQL_COL_NAME_LEN];
   char sqlType[SQL_TYPE_LEN];
   char colName[SQL_COL_NAME_LEN];
-  char *next;
+  size_t l = 0;
   int i, n;
 
   if(!u || id < 0) {
@@ -921,8 +932,8 @@ static int sqlCreateTable(const Variable *u, int id) {
   }
 
   // Figure out the length of the last (possibly longest) column's name, incl. separator
-  printColumnFormat(n, fmt);
-  sprintf(colName, fmt, (n - 1));
+  printColumnFormat(n, fmt, sizeof(fmt));
+  x_snprintf(colName, sizeof(colName), fmt, (n - 1));
 
   // The max. bytes per column definition in the SQL command...
   i = sizeof(SQL_SEP) + strlen(colName) + strlen(sqlType) + 1;
@@ -930,15 +941,14 @@ static int sqlCreateTable(const Variable *u, int id) {
   // Make sure the command buffer is large enough...
   ensureCommandCapacity(200 + SQL_TABLE_NAME_LEN + sizeof(SQL_DATE) + sizeof(SQL_INT32) + (n * i));
 
-  next = cmd;
-  next += sprintf(next, "CREATE TABLE " TABLE_NAME_PATTERN " (time " SQL_DATE " PRIMARY KEY, age " SQL_INT32, id);
+  l += x_snprintf(&cmd[l], cmdSize - l, "CREATE TABLE " TABLE_NAME_PATTERN " (time " SQL_DATE " PRIMARY KEY, age " SQL_INT32, id);
 
   for(i = 0; i < n; i++) {
-    sprintf(colName, fmt, i);
-    next += sprintf(next, SQL_SEP "%s %s", colName, sqlType);
+    x_snprintf(colName, sizeof(colName), fmt, i);
+    l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "%s %s", colName, sqlType);
   }
 
-  sprintf(next, ");");
+  x_snprintf(&cmd[l], cmdSize - l, ");");
 
   if(!sqlExecSimple(cmd)) return ERROR_RETURN;
 
@@ -956,10 +966,10 @@ static int sqlConvertToHyperTable(int id) {
 
 # if TIMESCALEDB_OLD
   // Old syntax
-  sprintf(cmd, "SELECT create_hypertable('" TABLE_NAME_PATTERN "', 'time', chunk_time_interval => INTERVAL '" TIMESCALE "');", id);
+  x_snprintf(cmd, cmdSize, "SELECT create_hypertable('" TABLE_NAME_PATTERN "', 'time', chunk_time_interval => INTERVAL '" TIMESCALE "');", id);
 # else
   // New syntax
-  sprintf(cmd, "SELECT create_hypertable('" TABLE_NAME_PATTERN "', by_range('time', INTERVAL '" TIMESCALE "'));", id);
+  x_snprintf(cmd, cmdSize, "SELECT create_hypertable('" TABLE_NAME_PATTERN "', by_range('time', INTERVAL '" TIMESCALE "'));", id);
 #endif
 
   if(!sqlExecSimple(cmd)) return ERROR_RETURN;
@@ -988,7 +998,7 @@ static int sqlCreateMetaTable(int id) {
   ensureCommandCapacity(200 + SQL_TABLE_NAME_LEN + sizeof(META_SERIAL_ID) + sizeof(SQL_SERIAL) + sizeof(SQL_DATE));
 
   // Create metadata table
-  sprintf(cmd, "CREATE TABLE " META_NAME_PATTERN " (" META_SERIAL_ID " " SQL_SERIAL " PRIMARY KEY, time " SQL_DATE " NOT NULL, "
+  x_snprintf(cmd, cmdSize, "CREATE TABLE " META_NAME_PATTERN " (" META_SERIAL_ID " " SQL_SERIAL " PRIMARY KEY, time " SQL_DATE " NOT NULL, "
           "sampling %s DEFAULT 1, ndim %s DEFAULT 0, shape %s, unit %s);", id, samplingType, dimType, shapeType, unitType);
 
   if(!sqlExecSimple(cmd)) return ERROR_RETURN;
@@ -999,7 +1009,7 @@ static int sqlCreateMetaTable(int id) {
 
 static int sqlAddMeta(const Variable *u, TableDescriptor *t) {
   const XField *f = &u->field;
-  char *next = cmd;
+  size_t l = 0;
   int step, ndim;
 
   if(!u || !t) {
@@ -1016,24 +1026,24 @@ static int sqlAddMeta(const Variable *u, TableDescriptor *t) {
   else if(ndim == 1 && t->sizes[0] <= 1) ndim = 0;
 
   ensureCommandCapacity(200 + META_SHAPE_LEN + META_UNIT_LEN);
-  next += sprintf(next, "INSERT INTO " META_NAME_PATTERN " VALUES(DEFAULT" SQL_SEP, t->index);
+  l += x_snprintf(&cmd[l], cmdSize - l, "INSERT INTO " META_NAME_PATTERN " VALUES(DEFAULT" SQL_SEP, t->index);
 
-  next += strftime(next, 100, SQL_DATE_FORMAT, gmtime(&u->updateTime));
+  l += strftime(&cmd[l], cmdSize - l, SQL_DATE_FORMAT, gmtime(&u->updateTime));
 
-  next += sprintf(next, SQL_SEP "%d", step);
-  next += sprintf(next, SQL_SEP "%d", ndim);
+  l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "%d", step);
+  l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "%d", ndim);
 
   if(ndim > 0) {
-    next += sprintf(next, SQL_SEP "'");
-    next += xPrintDims(next, ndim, f->sizes);
-    next += sprintf(next, "'");
+    l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "'");
+    l += xPrintDimsN(&cmd[l], ndim, f->sizes, cmdSize - l);
+    l += x_snprintf(&cmd[l], cmdSize - l, "'");
   }
-  else next += sprintf(next, SQL_SEP "NULL");
+  else l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "NULL");
 
-  if(*t->unit) next += sprintf(next, SQL_SEP "'%s'", t->unit);
-  else next += sprintf(next, SQL_SEP "NULL");
+  if(*t->unit) l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "'%s'", t->unit);
+  else l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "NULL");
 
-  sprintf(next, ");");
+  x_snprintf(&cmd[l], cmdSize - l, ");");
 
   if(!sqlExecSimple(cmd)) return ERROR_RETURN;
 
@@ -1064,7 +1074,7 @@ static int sqlGetLastMeta(TableDescriptor *t) {
 
   ensureCommandCapacity(100 + SQL_TABLE_NAME_LEN + sizeof(SQL_LAST(META_SERIAL_ID)));
 
-  sprintf(cmd, "SELECT * FROM " META_NAME_PATTERN " " SQL_LAST(META_SERIAL_ID) ";", t->index);
+  x_snprintf(cmd, cmdSize, "SELECT * FROM " META_NAME_PATTERN " " SQL_LAST(META_SERIAL_ID) ";", t->index);
   if(!sqlExec(cmd, &res)) return FALSE;
 
   if(PQntuples(res) < 1) {
@@ -1227,12 +1237,12 @@ static int sqlConnect(const char *userName, const char *auth, const char *dbName
 
   ensureCommandCapacity(200);
 
-  pos = sprintf(cmd, "host=%s user=%s", getSQLServerAddress(), userName);
+  pos = x_snprintf(cmd, cmdSize, "host=%s user=%s", getSQLServerAddress(), userName);
 
-  if(dbName) pos += sprintf(&cmd[pos], " dbname=%s", dbName);
+  if(dbName) pos += x_snprintf(&cmd[pos], cmdSize - pos, " dbname=%s", dbName);
 
   // Add password if needed
-  if(auth) sprintf(&cmd[pos], " password=%s", auth);
+  if(auth) x_snprintf(&cmd[pos], cmdSize - pos, " password=%s", auth);
 
   dprintf("connect %s\n", cmd);
   sql_db = PQconnectdb(cmd);
@@ -1303,7 +1313,7 @@ static int sqlInsertVariable(const Variable *u) {
   ensureCommandCapacity(100 + strlen(u->id));
 
   // Create a new title in the DB for the variable-name, assigning it a tid
-  sprintf(cmd, "INSERT INTO titles VALUES('%s', DEFAULT) RETURNING tid;", u->id);
+  x_snprintf(cmd, cmdSize, "INSERT INTO titles VALUES('%s', DEFAULT) RETURNING tid;", u->id);
   if(!sqlExec(cmd, &reply)) goto cleanup; // @suppress("Goto statement used")
 
   if(1 != sscanf(PQgetvalue(reply, 0, 0), "%d", &tid)) goto cleanup; // @suppress("Goto statement used")
@@ -1317,7 +1327,7 @@ static int sqlInsertVariable(const Variable *u) {
 
   // Create an index for the table for faster data access
   ensureCommandCapacity(100 + 2 * SQL_TABLE_NAME_LEN);
-  sprintf(cmd, "CREATE UNIQUE INDEX " TABLE_NAME_PATTERN "_index_time ON " TABLE_NAME_PATTERN " (time);", tid, tid);
+  x_snprintf(cmd, cmdSize, "CREATE UNIQUE INDEX " TABLE_NAME_PATTERN "_index_time ON " TABLE_NAME_PATTERN " (time);", tid, tid);
 
   if(!sqlExecSimple(cmd)) goto cleanup; // @suppress("Goto statement used")
 
@@ -1353,7 +1363,7 @@ static int sqlAddColumns(TableDescriptor *t, const Variable *u) {
 
   fprintf(stderr, "!CHANGE! Add %d columns to %s\n", nCols - t->cols, t->id);
 
-  sprintf(tabName, TABLE_NAME_PATTERN, t->index);
+  x_snprintf(tabName, sizeof(tabName), TABLE_NAME_PATTERN, t->index);
 
   ensureCommandCapacity(200 + sizeof(tabName) + 2 * sizeof(colName));
 
@@ -1361,22 +1371,22 @@ static int sqlAddColumns(TableDescriptor *t, const Variable *u) {
   if(!sqlBegin()) return ERROR_RETURN;
 
   // Check if column names need extra digits compared to what we had before
-  if(printColumnFormat(t->cols, oldFmt) < printColumnFormat(nCols, newFmt)) for(i = 0; i < t->cols; i++) {
+  if(printColumnFormat(t->cols, oldFmt, sizeof(oldFmt)) < printColumnFormat(nCols, newFmt, sizeof(newFmt))) for(i = 0; i < t->cols; i++) {
     char oldName[SQL_COL_NAME_LEN];
 
-    sprintf(oldName, oldFmt, i);  // existing column name
-    sprintf(colName, newFmt, i);  // new column name with extra digit
+    x_snprintf(oldName, sizeof(oldName), oldFmt, i);  // existing column name
+    x_snprintf(colName, sizeof(colName), newFmt, i);  // new column name with extra digit
 
     // Change the old column name to add the extra digit
-    sprintf(cmd, "ALTER TABLE %s RENAME COLUMN %s TO %s;", tabName, oldName, colName);
+    x_snprintf(cmd, cmdSize, "ALTER TABLE %s RENAME COLUMN %s TO %s;", tabName, oldName, colName);
     if(!sqlExecSimple(cmd)) goto cleanup; // @suppress("Goto statement used")
   }
 
   while(t->cols < nCols) {
-    sprintf(colName, newFmt, t->cols);  // added column name
+    x_snprintf(colName, sizeof(colName), newFmt, t->cols);  // added column name
 
     // Add a column to the table
-    sprintf(cmd, "ALTER TABLE %s ADD COLUMN %s %s;", tabName, colName, t->sqlType);
+    x_snprintf(cmd, cmdSize, "ALTER TABLE %s ADD COLUMN %s %s;", tabName, colName, t->sqlType);
     if(!sqlExecSimple(cmd)) goto cleanup; // @suppress("Goto statement used")
 
     t->cols++;
@@ -1405,9 +1415,9 @@ static int sqlChangeType(TableDescriptor *t, const char *newType) {
 
   fprintf(stderr, "!CHANGE! %s type to %s\n", t->id, newType);
 
-  sprintf(tabName, TABLE_NAME_PATTERN, t->index);
+  x_snprintf(tabName, sizeof(tabName), TABLE_NAME_PATTERN, t->index);
 
-  printColumnFormat(t->cols, fmt);
+  printColumnFormat(t->cols, fmt, sizeof(fmt));
 
   ensureCommandCapacity(100 + sizeof(tabName) + 2 * sizeof(colName));
 
@@ -1415,10 +1425,10 @@ static int sqlChangeType(TableDescriptor *t, const char *newType) {
   if(!sqlBegin()) return ERROR_RETURN;
 
   for(i = 0; i < t->cols; i++) {
-    sprintf(colName, fmt, i);
+    x_snprintf(colName, sizeof(colName), fmt, i);
 
     // Change the column type -- the syntax is SQL flavor dependent
-    sprintf(cmd, "ALTER TABLE %s ALTER COLUMN %s TYPE %s;", tabName, colName, newType);
+    x_snprintf(cmd, cmdSize, "ALTER TABLE %s ALTER COLUMN %s TYPE %s;", tabName, colName, newType);
     if(!sqlExecSimple(cmd)) goto cleanup; // @suppress("Goto statement used")
   }
 
@@ -1449,7 +1459,7 @@ static int sqlAddValues(const Variable *u) {
   const XField *f = &u->field;
   TableDescriptor *t;
   int len;
-  char *next = cmd;
+  size_t pos = 0;
   char sqlType[SQL_TYPE_LEN];
 
   if(!u) {
@@ -1502,11 +1512,17 @@ static int sqlAddValues(const Variable *u) {
   ensureCommandCapacity(200 + SQL_TABLE_NAME_LEN + getSampleCount(u) * len);
 
   /* Now insert the data */
-  next += sprintf(next, "INSERT INTO " TABLE_NAME_PATTERN " VALUES(", t->index);
-  next += strftime(next, 100, SQL_DATE_FORMAT, gmtime(&u->grabTime));
-  next += sprintf(next, SQL_SEP "'%d'", (int) (u->grabTime - u->updateTime));
-  next = appendValues(u, next);
-  sprintf(next, ");");
+  pos += x_snprintf(&cmd[pos], cmdSize - pos, "INSERT INTO " TABLE_NAME_PATTERN " VALUES(", t->index);
+  pos += strftime(&cmd[pos], cmdSize - pos, SQL_DATE_FORMAT, gmtime(&u->grabTime));
+  pos += x_snprintf(&cmd[pos], cmdSize - pos, SQL_SEP "'%d'", (int) (u->grabTime - u->updateTime));
+  pos += appendValues(u, &cmd[pos], cmdSize - pos);
+
+  if(pos + 3 < cmdSize) pos += x_snprintf(&cmd[pos], cmdSize - pos, ");");
+  else {
+    fprintf(stderr, "WARNING! Buffer overflow in sqlAddValues()\n");
+    errno = EOVERFLOW;
+    return ERROR_RETURN;
+  }
 
   // Add values in an atomic block...
   if(!sqlBegin()) return ERROR_RETURN;
@@ -1536,18 +1552,18 @@ static boolean sqlDeleteVar(const char *id) {
   ensureCommandCapacity(100 + SQL_TABLE_NAME_LEN + sizeof(VARNAME_ID) + strlen(id));
 
   // Delete variable table
-  sprintf(cmd, "DROP TABLE %s;", id);
+  x_snprintf(cmd, cmdSize, "DROP TABLE %s;", id);
   if(sqlExecSimple(cmd)) n++;
 
   // Delete metadata
   if(sscanf(id, TABLE_NAME_PATTERN, &tid) < 1) fprintf(stderr, "WARNING! Invalid " VARNAME_ID " = '%s'.\n", id);
   else {
-    sprintf(cmd, "DROP TABLE " META_NAME_PATTERN ";", tid);
+    x_snprintf(cmd, cmdSize, "DROP TABLE " META_NAME_PATTERN ";", tid);
     if(sqlExecSimple(cmd)) n++;
   }
 
   // Remove variable from titles
-  sprintf(cmd, "DELETE FROM " MASTER_TABLE " WHERE " VARNAME_ID " = %s;", id);
+  x_snprintf(cmd, cmdSize, "DELETE FROM " MASTER_TABLE " WHERE " VARNAME_ID " = %s;", id);
   if(sqlExecSimple(cmd)) n++;
 
   return n > 0;

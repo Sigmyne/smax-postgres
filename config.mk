@@ -91,6 +91,24 @@ CHECKOPTS += --inline-suppr $(CHECKEXTRA)
 # Below are some generated constants based on the one that were set above
 # ============================================================================
 
+# If XCHANGE is defined convert to absolute path for sub-makes.
+ifdef XCHANGE
+  XCHANGE := $(shell cd $(XCHANGE); pwd)
+  export XCHANGE
+endif
+
+# If REDISX is defined convert to absolute path for sub-makes.
+ifdef REDISX
+  REDISX := $(shell cd $(REDISX); pwd)
+  export REDISX
+endif
+
+# If SMAXLIB is defined convert to absolute path for sub-makes.
+ifdef SMAXLIB
+  SMAXLIB := $(shell cd $(SMAXLIB); pwd)
+  export SMAXLIB
+endif
+
 # Make sure we can locate the PostgreSQL headers / libraries
 ifdef PGDIR
   # Search the selected Postgres directory
