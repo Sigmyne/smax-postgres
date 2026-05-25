@@ -153,7 +153,7 @@ static double parseTimeSpec(const char *str) {
  */
 int parseConfig(const char *filename) {
   FILE *f;
-  char line[1024] = {'\0'};
+  char line[1024] = {'\0'}, *context = NULL;
   int l;
 
   if(!filename) {
@@ -178,12 +178,12 @@ int parseConfig(const char *filename) {
   add_rule(&excludes, "*" X_SEP "<*", TRUE);
 
   for(l = 1; fgets(line, sizeof(line) - 1, f) != NULL; l++) if(*line) if(*line != '#') {
-    char *option = NULL, *arg = NULL;
+    char *option = NULL, *arg = NULL, *context = NULL;
 
-    option = strtok(line, " \t\n=");
+    option = strtok_r(line, " \t\n=", &context);
     if(!option) continue;
 
-    arg = strtok(NULL, "#\n");
+    arg = strtok_r(NULL, "#\n", &context);
     if(!arg) {
       fprintf(stderr, "WARNING! [%s:%d] missing option argument: [%s]\n", filename, l, line);
       continue;
