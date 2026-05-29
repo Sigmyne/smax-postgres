@@ -43,7 +43,7 @@ app: $(BIN)/smax-postgres
 
 # Build everything...
 .PHONY: all
-all: deploy check
+all: distro check
 
 # Regression testing
 .PHONY: test
