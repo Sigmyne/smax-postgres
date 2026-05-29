@@ -153,7 +153,7 @@ static double parseTimeSpec(const char *str) {
  */
 int parseConfig(const char *filename) {
   FILE *f;
-  char line[1024] = {'\0'}, *context = NULL;
+  char line[1024] = {'\0'};
   int l;
 
   if(!filename) {
