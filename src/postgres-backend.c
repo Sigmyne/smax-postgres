@@ -1280,7 +1280,7 @@ static int sqlConnectRetry(int attempts) {
     sleep(CONNECT_RETRY_SECONDS);
   }
 
-  fprintf(stderr, "ERROR! SQL connection failed after %d attemps. Exiting.\n", i);
+  fprintf(stderr, "ERROR! SQL connection failed after %d attempts. Exiting.\n", i);
   errno = ENOTCONN;
   return ERROR_RETURN;
 }
@@ -1607,7 +1607,7 @@ int deleteVars(const char *pattern) {
       continue;
     }
 
-    if(fnmatch(pattern, id, 0)) if(sqlDeleteVar(id)) n++;
+    if(fnmatch(pattern, id, 0) == 0) if(sqlDeleteVar(id)) n++;
   }
 
   PQclear(tables);

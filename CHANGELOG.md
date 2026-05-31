@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 Release candidate for upcoming maintenance release, expected around 15 July 2026.
 
+### Fixed
+
+ - Fixed inverted parse of `use_hyper_tables` boolean config setting.
+
 ### Changed
 
  - Use `snprintf()` instead of `sprintf()` when possible.

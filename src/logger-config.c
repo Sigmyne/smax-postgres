@@ -220,8 +220,8 @@ int parseConfig(const char *filename) {
 
     if(strcmp("use_hyper_tables", option) == 0) {
       lc(arg);
-      if(strcmp(arg, "true") || strcmp(arg, "1")) use_hyper_tables = TRUE;
-      else if(strcmp(arg, "false") || strcmp(arg, "0")) use_hyper_tables = FALSE;
+      if(strcmp(arg, "true") == 0 || strcmp(arg, "1") == 0) use_hyper_tables = TRUE;
+      else if(strcmp(arg, "false") == 0 || strcmp(arg, "0") == 0) use_hyper_tables = FALSE;
       else fprintf(stderr, "WARNING! [%s:%d] expected boolean, got: %s\n", filename, l, arg);
       continue;
     }

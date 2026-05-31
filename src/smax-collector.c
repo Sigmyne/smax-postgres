@@ -238,7 +238,7 @@ static boolean SubmitUpdate(Update *u) {
     if(getSampleCount(v) * xElementSizeOf(v->field.type) > getMaxLogSize()) return FALSE;
   }
 
-  dprintf("UPDATE %s: force %d, sampling = %d, size = %d, time = %ld\n", v->id, force, p->sampling, getSampleCount(v) * xElementSizeOf(v->field.type), v->grabTime);
+  dprintf("UPDATE %s: force %d, sampling = %d, size = %d, time = %ld\n", v->id, force, v->sampling, getSampleCount(v) * xElementSizeOf(v->field.type), v->grabTime);
 
   // Convert from serialized to binary
   smax2xField(f);
@@ -544,7 +544,7 @@ static double GetServerTime() {
  * @param isSnapshot        Whether we want a complete snapshot. If FALSE, the function may still do a snapshot
  *                          if there has not been a successful snapshot taken already. Otherwise it will just
  *                          perform an incremental update of the variable that have changed since last time.
- * @return X_SUCCESS (0) or else en error code (<0)
+ * @return X_SUCCESS (0) or else an error code (<0)
  */
 static int Grab(VarGroup *group, const time_t grabTime, boolean isSnapshot) {
   double t = GetServerTime();
@@ -580,7 +580,7 @@ static int Grab(VarGroup *group, const time_t grabTime, boolean isSnapshot) {
 
 
 /**
- * Service thead that continuously collects data from SMA-X and queues them for insertion ino the time-series database.
+ * Service thread that continuously collects data from SMA-X and queues them for insertion into the time-series database.
  * It does a differential update every UPDATE_INTERVAL or a full snapshot every SNAPSHOT_INTERVAL.
  *
  * @param arg       Unused.
