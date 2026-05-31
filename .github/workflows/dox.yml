@@ -82,19 +82,19 @@ jobs:
         path: smax-clib   
 
     - name: Generate xchange docs
-      run: make -C xchange local-dox 
+      run: make -C xchange dox 
 
     - name: Generate RedisX docs
-      run: make -C redisx local-dox  
+      run: make -C redisx dox  
 
     - name: Generate smax-clib docs
-      run: make -C smax-clib local-dox  
+      run: make -C smax-clib dox  
 
     - name: Generate headless README for smax-postgres
       run: make -C smax-postgres README-smax-postgres.md
 
     - name: Generate smax-postgres apidocs
-      uses: mattnotmitt/doxygen-action@v1.9.8
+      uses: mattnotmitt/doxygen-action@edge
       with:
         additional-packages: font-roboto
         working-directory: ./smax-postgres
