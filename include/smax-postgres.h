@@ -101,14 +101,14 @@
 #define SMAXPQ_VERSION_STRING str_2(SMAXPQ_MAJOR_VERSION) "." str_2(SMAXPQ_MINOR_VERSION) \
                                   "." str_2(SMAXPQ_PATCHLEVEL) SMAXPQ_RELEASE_STRING
 
-extern boolean debug;             ///< whether to show debug messages
+extern XBoolean debug;             ///< whether to show debug messages
 
 /**
  * A set of properties that determine how an SMA-X variable is logged into the PostgreSQL DB.
  */
 typedef struct {
-  boolean force;                  ///< Whether the variable should be logged no matter what other settings.
-  boolean exclude;                ///< Whether to exclude this variable from logging
+  XBoolean force;                  ///< Whether the variable should be logged no matter what other settings.
+  XBoolean exclude;                ///< Whether to exclude this variable from logging
   int sampling;                   ///< sampling step for array data (sampling every n values only)
 } logger_properties;
 
@@ -150,8 +150,8 @@ int setSQLUserName(const char *name);
 const char *getSQLAuth();
 int setSQLAuth(const char *passwd);
 
-boolean isUseHyperTables();
-void setUseHyperTables(boolean value);
+XBoolean isUseHyperTables();
+void setUseHyperTables(XBoolean value);
 
 int getUpdateInterval();
 int getSnapshotInterval();
