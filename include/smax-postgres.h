@@ -76,7 +76,7 @@
 #define SMAXPQ_PATCHLEVEL     1
 
 /// Additional release information in version, e.g. "-1", or "-rc1".
-#define SMAXPQ_RELEASE_STRING "-devel"
+#define SMAXPQ_RELEASE_STRING ""
 
 /// \cond PRIVATE
 
