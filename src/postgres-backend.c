@@ -328,7 +328,7 @@ static void initCache() {
 
       // Use the first data column to determine how many data columns and what type they are.
       if(strncmp(COL_NAME_STEM "0", colName, sizeof(COL_NAME_STEM)) == 0) {
-        char *storeType = PQgetvalue(columns, k, 1);
+        const char *storeType = PQgetvalue(columns, k, 1);
         int j;
 
         firstDataCol = k;
@@ -338,8 +338,8 @@ static void initCache() {
         for(j = 0; j < max && storeType[j]; j++) type[j] = toupper(storeType[j]);
 
         // Substitute short forms
-        shorten(storeType, "CHARACTER VARIABLE", "VARCHAR");
-        shorten(storeType, "CHARCTER", "CHAR");
+        shorten(type, "CHARACTER VARIABLE", "VARCHAR");
+        shorten(type, "CHARCTER", "CHAR");
 
         break;
       }
@@ -1133,7 +1133,7 @@ static boolean isMetaUpdate(const Variable *u, const TableDescriptor *t) {
   if(ndim < 1) ndim = 0;
   else if(ndim == 1 && f->sizes[0] <= 1) ndim = 0;
 
-  if(ndim != u->field.ndim) {
+  if(ndim != t->ndim) {
     dprintf("! Found new dimensionality for %s\n", u->id);
     return TRUE;
   }
@@ -1170,7 +1170,7 @@ static int sqlExec(const char *sql, PGresult **resp) {
     return FALSE;
   }
 
-  if(!cmd[0]) {
+  if(!cmd || !cmd[0]) {
     errno = EAGAIN;
     return FALSE;
   }
@@ -1274,13 +1274,13 @@ static int sqlConnect(const char *userName, const char *auth, const char *dbName
 static int sqlConnectRetry(int attempts) {
   int i;
   // Connect to the database (and keep retrying...)
-  for(i = 1; i < attempts; i++) {
+  for(i = 1; i <= attempts; i++) {
     if(sqlConnect(getSQLUserName(), getSQLAuth(), getSQLDatabaseName()) == SUCCESS_RETURN) return SUCCESS_RETURN;
     fprintf(stderr, "Will retry connecting to SQL server in %d seconds (%d of %d)...\n", CONNECT_RETRY_SECONDS, i, attempts);
     sleep(CONNECT_RETRY_SECONDS);
   }
 
-  fprintf(stderr, "ERROR! SQL connection failed after %d attempts. Exiting.\n", i);
+  fprintf(stderr, "ERROR! SQL connection failed after %d attempts. Exiting.\n", attempts);
   errno = ENOTCONN;
   return ERROR_RETURN;
 }
