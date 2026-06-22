@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+ - Storing arrays of string and character-arrays, did not advance the print position after the separator, causing 
+   the strings to be truncated early before consecutive array elements.
+
+ - Various Copilot inspired fixes.
+
+
 ## [1.0.1] - 2026-06-21
 
 Maintenance release.

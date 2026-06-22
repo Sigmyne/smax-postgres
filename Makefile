@@ -66,13 +66,13 @@ clean:
 # Remove all generated files
 .PHONY: distclean
 distclean: clean
-	rm -f Doxyfile.local $(BIN)/smax-postgress
+	rm -f Doxyfile.local $(BIN)/smax-postgres
 
 # ----------------------------------------------------------------------------
 # The nitty-gritty stuff below
 # ----------------------------------------------------------------------------
 
-SOURCES = $(SRC)/smax-postgres.c $(SRC)/logger-config.c $(SRC)/postgres-backend.c $(SRC)/smax-collector.o
+SOURCES = $(SRC)/smax-postgres.c $(SRC)/logger-config.c $(SRC)/postgres-backend.c $(SRC)/smax-collector.c
 
 # Generate a list of object (obj/*.o) files from the input sources
 OBJECTS := $(subst $(SRC),$(OBJ),$(SOURCES))

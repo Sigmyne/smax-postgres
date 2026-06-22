@@ -31,7 +31,7 @@
  */
 
 /// Default configuration file name
-#define SMAXPQ_DEFAULT_CONFIG   "/etc/smax-postgress.cfg"
+#define SMAXPQ_DEFAULT_CONFIG   "/etc/smax-postgres.cfg"
 
 #define TIMESCALE               "3 days"  ///< Default TimescaleDB timescale
 
@@ -123,7 +123,7 @@ typedef struct Variable {
   time_t grabTime;                ///< (s) UNIX time when data was grabbed / or scheduled to be grabbed
   int sampling;                   ///< sampling step for array data (sampling every n values only)
   char *unit;                     ///< Physical unit name (if any)
-  struct Variable *next;          ///< Pointer to the next Variable in the linked lisr, or NULL if no more
+  struct Variable *next;          ///< Pointer to the next Variable in the linked list, or NULL if no more
 } Variable;
 
 
