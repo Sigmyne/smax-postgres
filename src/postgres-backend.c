@@ -20,7 +20,6 @@
 #include <math.h>
 #include <pthread.h>
 #include <time.h>
-#include <semaphore.h>
 #include <search.h>
 #include <fnmatch.h>
 #include <popt.h>
@@ -114,9 +113,9 @@ static size_t appendValue(const void *data, XType type, char *dst, size_t len);
 static size_t appendValues(const Variable *u, char *dst, size_t len);
 
 // Local variables --------------------------------------------------------->
-static pthread_mutex_t qMutex = PTHREAD_MUTEX_INITIALIZER;  ///< Queue mutex
-static sem_t qAvailable;                                    ///< {mut} Counting semaphore for the queue
-static Variable *first = NULL, *last = NULL;                ///< {mut} Queue head and tail elements
+static pthread_mutex_t qMutex = PTHREAD_MUTEX_INITIALIZER;    ///< Queue mutex
+static pthread_cond_t qAvailable = PTHREAD_COND_INITIALIZER;  ///< {mut} Counting semaphore for the queue
+static Variable *first = NULL, *last = NULL;                  ///< {mut} Queue head and tail elements
 
 static PGconn *sql_db;      ///< The current SQL connection information
 static char *cmd;           ///< Buffer for assembling long SQL commands in.
@@ -157,9 +156,6 @@ void *SQLThread() {
 
   initCache();
 
-  // Initialize a the counting sempahore for the queue.
-  sem_init(&qAvailable, 0, 0);
-
 # if USE_SYSTEMD
   sd_notify(0, "READY=1");
   setSDState(IDLE_STATE);
@@ -169,11 +165,13 @@ void *SQLThread() {
   while(TRUE) {
     Variable *u;
 
-    // Wait until something has been placed on the queue
-    while(sem_wait(&qAvailable));
-
     // Take the first element from the queue...
     lockQueue();
+
+    // Wait until something has been placed on the queue
+    if(pthread_cond_wait(&qAvailable, &qMutex) != 0)
+      exit(EINTR);
+
     u = first;
     first = first->next;
     if(!first) last = NULL;
@@ -226,7 +224,7 @@ int insertQueue(Variable *u) {
   if(!first) first = u;
   else last->next = u;
   last = u;
-  sem_post(&qAvailable);
+  pthread_cond_broadcast(&qAvailable);
   unlockQueue();
 
   return SUCCESS_RETURN;
