@@ -3,6 +3,7 @@
  *
  * @date Created  on Mar 16, 2022
  * @author Attila Kovacs
+ * @version 1.1
  *
  *  SMA-X to SQL database logger configuration and API.
  */
@@ -70,13 +71,13 @@
 #define SMAXPQ_MAJOR_VERSION  1
 
 /// API minor version
-#define SMAXPQ_MINOR_VERSION  0
+#define SMAXPQ_MINOR_VERSION  1
 
 /// Integer sub version of the release
-#define SMAXPQ_PATCHLEVEL     1
+#define SMAXPQ_PATCHLEVEL     0
 
 /// Additional release information in version, e.g. "-1", or "-rc1".
-#define SMAXPQ_RELEASE_STRING ""
+#define SMAXPQ_RELEASE_STRING "-devel"
 
 /// \cond PRIVATE
 
