@@ -71,7 +71,7 @@ static void *GrabberThread(void *arg);
  * @return      X_SUCCESS (0) if successful or else an error code (<0).
  */
 int initCollector() {
-  static boolean warned;
+  static XBoolean warned;
 
   int i, status;
 
@@ -185,12 +185,12 @@ static void DestroyEntries(RedisEntry *entries, int n) {
  * @return      TRUE (1) if successfully queued a DB update for the variable, or else FALSE (0; errno may be
  *              set to indicate the type of error -- if any).
  */
-static boolean SubmitUpdate(Update *u) {
+static XBoolean SubmitUpdate(Update *u) {
   const XMeta *m;
   const logger_properties *p;
   Variable *v;
   XField *f;
-  boolean force = FALSE;
+  XBoolean force = FALSE;
 
   if(!u || !u->var) {
     errno = EINVAL;
@@ -546,7 +546,7 @@ static double GetServerTime() {
  *                          perform an incremental update of the variable that have changed since last time.
  * @return X_SUCCESS (0) or else an error code (<0)
  */
-static int Grab(VarGroup *group, const time_t grabTime, boolean isSnapshot) {
+static int Grab(VarGroup *group, const time_t grabTime, XBoolean isSnapshot) {
   double t = GetServerTime();
   int status;
 
@@ -594,7 +594,7 @@ static void *GrabberThread(void *arg) {
 
   for(;;) {
     time_t target = SleepToRound(getUpdateInterval());
-    boolean isSnapshot = FALSE;
+    XBoolean isSnapshot = FALSE;
     int i;
 
     if(getSnapshotInterval() > 0) isSnapshot = (target % getSnapshotInterval() < getUpdateInterval());

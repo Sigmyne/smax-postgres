@@ -48,7 +48,7 @@ static char *sqlServer;
 static char *dbName;
 static char *dbUser;
 static char *dbAuth;
-static boolean use_hyper_tables = FALSE;
+static XBoolean use_hyper_tables = FALSE;
 
 static int update_interval = MINUTE;    ///< (s) The rate of fast updates for changing variables (min. 1m).
 static int snapshot_interval = MINUTE;  ///< (s) The rate of snapshotting all variables (min. 1m).
@@ -426,7 +426,7 @@ logger_properties *getLogProperties(const char *id) {
  * @param updateTime  (s) UNIX timestamp when the variable was last updated in the SMA-X database.
  * @return            TRUE (1) if the variable should be logged into the SQL database, or else FALSE (0)
  */
-boolean isLogging(const char *id, double updateTime) {
+XBoolean isLogging(const char *id, double updateTime) {
   const logger_properties *p;
   const time_t now = time(NULL);
 
@@ -614,7 +614,7 @@ int setSQLAuth(const char *passwd) {
  *
  * @sa setUseHyperTables()
  */
-boolean isUseHyperTables() {
+XBoolean isUseHyperTables() {
   return use_hyper_tables;
 }
 
@@ -626,7 +626,7 @@ boolean isUseHyperTables() {
  *
  * @sa isUseHyperTables()
  */
-void setUseHyperTables(boolean value) {
+void setUseHyperTables(XBoolean value) {
   use_hyper_tables = (value != 0);
 }
 

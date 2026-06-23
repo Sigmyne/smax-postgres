@@ -22,7 +22,7 @@
 
 #include "smax-postgres.h"
 
-boolean debug = FALSE;
+XBoolean debug = FALSE;
 
 
 static void *CleanupThread(void *arg) {
@@ -66,7 +66,7 @@ int main(int argc, const char *argv[]) {
   char *configFile = SMAXPQ_DEFAULT_CONFIG;
   char *owner = "postgres";
   char *ownerPasswd = NULL;
-  boolean bootstrap = FALSE, version = FALSE;
+  XBoolean bootstrap = FALSE, version = FALSE;
   int c;
 
   const struct poptOption options[] = {
