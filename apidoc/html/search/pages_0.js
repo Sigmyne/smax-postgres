@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['changelog_0',['Changelog',['../../../smax-clib/apidoc/html/md_CHANGELOG.html',1,'']]],
-  ['contributing_20to_20smax_20postgres_1',['Contributing to smax-postgres',['../../../smax-clib/apidoc/html/md_CONTRIBUTING.html',1,'']]]
+  ['0_200_202026_2002_2016_0',['[1.0.0] - 2026-02-16',['../md_CHANGELOG.html#autotoc_md4',1,'']]],
+  ['0_201_202026_2006_2023_1',['[1.0.1] - 2026-06-23',['../md_CHANGELOG.html#autotoc_md1',1,'']]],
+  ['0_202026_2002_2016_2',['[1.0.0] - 2026-02-16',['../md_CHANGELOG.html#autotoc_md4',1,'']]],
+  ['02_2016_3',['[1.0.0] - 2026-02-16',['../md_CHANGELOG.html#autotoc_md4',1,'']]],
+  ['06_2023_4',['[1.0.1] - 2026-06-23',['../md_CHANGELOG.html#autotoc_md1',1,'']]]
 ];

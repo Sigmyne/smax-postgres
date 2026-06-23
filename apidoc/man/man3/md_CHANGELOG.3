@@ -1,0 +1,33 @@
+.TH "md_CHANGELOG" 3 "Version v1.1" "smax-postgres" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+md_CHANGELOG \- Changelog 
+.PP
+
+
+.PP
+All notable changes to the \fRSigmyne/smax-postgres\fP library will be documented in this file\&.
+
+.PP
+The format is based on \fRKeep a Changelog\fP, and this project adheres to \fRSemantic Versioning\fP\&.
+.SH "[1\&.0\&.1] - 2026-06-23"
+.PP
+Maintenance release\&.
+.SS "Fixed"
+.IP "\(bu" 2
+Fixed inverted parse of \fRuse_hyper_tables\fP boolean config setting\&.
+.IP "\(bu" 2
+Storing arrays of string and character-arrays, did not advance the print position after the separator, causing the strings to be truncated early before consecutive array elements\&.
+.IP "\(bu" 2
+Various fixes to minor issues spotted by Copilot\&.
+.PP
+.SS "Changed"
+.IP "\(bu" 2
+Use \fRsnprintf()\fP instead of \fRsprintf()\fP when possible\&.
+.IP "\(bu" 2
+Use \fRstrtok_r()\fP consistently\&.
+.PP
+.SH "[1\&.0\&.0] - 2026-02-16"
+.PP
+Initial public release\&. 

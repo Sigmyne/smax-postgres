@@ -1,4 +1,4 @@
-.TH "src/postgres-backend.c" 3 "Version v0.9" "smax-postgres" \" -*- nroff -*-
+.TH "src/postgres-backend.c" 3 "Version v1.1" "smax-postgres" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -28,7 +28,7 @@ src/postgres-backend.c
 .ti -1c
 .RI "#define \fBFIX_SCALAR_DIMS\fP   0"
 .br
-.RI "Whether singled-element 1D data should be stored as scalars\&. "
+.RI "Whether single-element 1D data should be stored as scalars\&. "
 .ti -1c
 .RI "#define \fBMASTER_TABLE\fP   'titles'"
 .br
@@ -48,7 +48,7 @@ src/postgres-backend.c
 .ti -1c
 .RI "#define \fBMETA_UNIT_LEN\fP   32"
 .br
-.RI "Maximum size for sotring physical units\&. "
+.RI "Maximum size for storing physical units\&. "
 .ti -1c
 .RI "#define \fBMIN_CMD_SIZE\fP   16384"
 .br
@@ -117,6 +117,7 @@ SQL backend module for smaxLogger\&. It supports most common SQL flavors\&. The 
 .PP 
 .SS "int deleteVars (const char * pattern)"
 Deletes variables and metadata from the SQL DB, and removes them from the master table also\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -133,6 +134,7 @@ The number of variables deleted from the SQL DB, or -1 if there was an error (er
 References \fBMASTER_TABLE\fP\&.
 .SS "int insertQueue (\fBVariable\fP * u)"
 Add the variable to the queue for database insertion\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -149,17 +151,18 @@ SUCCESS_RETURN (0) if successful, or else ERROR_RETURN (-1; errno will indicate 
 References \fBERROR_RETURN\fP, \fBVariable::next\fP, and \fBSUCCESS_RETURN\fP\&.
 .SS "int setupDB (const char * owner, const char * passwd)"
 Sets up (bootstraps) a clean new database
+
 .PP
 \fBParameters\fP
 .RS 4
 \fIowner\fP User that will own the database (it must have privileges for creating the database) 
 .br
-\fIpasswd\fP Password for oqner 
+\fIpasswd\fP Password for owner 
 .RE
 .PP
 \fBReturns\fP
 .RS 4
-SUUCCESS_RETURN if successful, or else ERROR_RETURN\&. 
+SUCCESS_RETURN if successful, or else ERROR_RETURN\&. 
 .RE
 .PP
 
@@ -167,6 +170,7 @@ SUUCCESS_RETURN if successful, or else ERROR_RETURN\&.
 References \fBIDLE_STATE\fP\&.
 .SS "void * SQLThread ()"
 The main processing thread, which pulls values from the queue and inserts them into the database asynchronously\&. It is started up by initialize();
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -175,7 +179,7 @@ NULL
 .PP
 
 .PP
-References \fBCONNECT_RETRY_ATTEMPTS\fP, \fBdestroyVariable()\fP, \fBERROR_EXIT\fP, \fBIDLE_STATE\fP, \fBMETA_NAME_PATTERN\fP, \fBVariable::next\fP, \fBSQL_TABLE_NAME_LEN\fP, \fBSUCCESS_RETURN\fP, and \fBTRUE\fP\&.
+References \fBCONNECT_RETRY_ATTEMPTS\fP, \fBdestroyVariable()\fP, \fBERROR_EXIT\fP, \fBIDLE_STATE\fP, \fBVariable::next\fP, \fBSQL_TABLE_NAME_LEN\fP, \fBSUCCESS_RETURN\fP, and \fBTRUE\fP\&.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for smax-postgres from the source code\&.

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['to_20smax_20postgres_0',['Contributing to smax-postgres',['../../../smax-clib/apidoc/html/md_CONTRIBUTING.html',1,'']]]
+  ['advanced_20installation_0',['Staging / advanced installation',['../index.html#autotoc_md15',1,'']]],
+  ['always_1',['&lt;span class=&quot;tt&quot;&gt;always &amp;lt;pattern&amp;gt;&lt;/span&gt;',['../index.html#autotoc_md35',1,'']]]
 ];

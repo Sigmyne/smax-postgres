@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['postgres_0',['postgres',['../../../smax-clib/apidoc/html/md_CONTRIBUTING.html',1,'Contributing to smax-postgres'],['../index.html',1,'smax-postgres']]]
+  ['1_200_200_202026_2002_2016_0',['[1.0.0] - 2026-02-16',['../md_CHANGELOG.html#autotoc_md4',1,'']]],
+  ['1_200_201_202026_2006_2023_1',['[1.0.1] - 2026-06-23',['../md_CHANGELOG.html#autotoc_md1',1,'']]],
+  ['1_202026_2006_2023_2',['[1.0.1] - 2026-06-23',['../md_CHANGELOG.html#autotoc_md1',1,'']]],
+  ['16_3',['[1.0.0] - 2026-02-16',['../md_CHANGELOG.html#autotoc_md4',1,'']]]
 ];

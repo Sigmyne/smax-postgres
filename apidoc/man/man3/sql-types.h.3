@@ -1,4 +1,4 @@
-.TH "include/sql-types.h" 3 "Version v0.9" "smax-postgres" \" -*- nroff -*-
+.TH "include/sql-types.h" 3 "Version v1.1" "smax-postgres" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -46,7 +46,7 @@ include/sql-types.h
 .br
 .RI "8-bit integer is not standard SQL type so bump to 16-bits "
 .ti -1c
-.RI "#define \fBSQL_LAST\fP(id)   'ORDER BY ' id ' DESC LIMIT 1'"
+.RI "#define \fBSQL_LAST\fP(id)"
 .br
 .RI "SQL for selecting last entry\&. "
 .ti -1c
@@ -85,6 +85,17 @@ Attila Kovacs
 .RE
 .PP
 Equivalent SQL data types across many common SQL flavors 
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define SQL_LAST( id)"
+\fBValue:\fP
+.nf
+"ORDER BY " id " DESC LIMIT 1"
+.PP
+.fi
+
+.PP
+SQL for selecting last entry\&. 
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for smax-postgres from the source code\&.

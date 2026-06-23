@@ -1,40 +1,44 @@
 <toc label="smax-postgres" topic="index.html">
-    <topic label="Table of Contents" href="index.html#autotoc_md4"/>
-    <topic label="Introduction" href="index.html#autotoc_md6"/>
-    <topic label="Prerequisites" href="index.html#autotoc_md7"/>
-    <topic label="Building &lt;tt&gt;smax-postgres&lt;/tt&gt;" href="index.html#autotoc_md9"/>
-    <topic label="Installation" href="index.html#autotoc_md11">
-      <topic label="Staging / advanced installation" href="index.html#autotoc_md12"/>
-      <topic label="Standard error/output with SystemD integration" href="index.html#autotoc_md13"/>
-      <topic label="Initial setup of the SQL database" href="index.html#autotoc_md14"/>
-    <topic label="Database organization (for clients)" href="index.html#autotoc_md16"/>
-    <topic label="Configuration Reference" href="index.html#autotoc_md18">
-      <topic label="Database configuration options" href="index.html#autotoc_md19">
-        <topic label="&lt;tt&gt;smax_server &lt;host&gt;&lt;/tt&gt;" href="index.html#autotoc_md20"/>
-        <topic label="&lt;tt&gt;sql_auth &lt;password&gt;&lt;/tt&gt;" href="index.html#autotoc_md21"/>
-        <topic label="&lt;tt&gt;sql_db&lt;/tt&gt; &lt;db-name&gt;`" href="index.html#autotoc_md22"/>
-        <topic label="&lt;tt&gt;sql_server &lt;host&gt;&lt;/tt&gt;" href="index.html#autotoc_md23"/>
-        <topic label="&lt;tt&gt;sql_user &lt;user-name&gt;&lt;/tt&gt;" href="index.html#autotoc_md24"/>
-        <topic label="&lt;tt&gt;use_hypertables &lt;1|0&gt;&lt;/tt&gt;" href="index.html#autotoc_md25"/>
+    <topic label="Table of Contents" href="index.html#autotoc_md7"/>
+    <topic label="Introduction" href="index.html#autotoc_md9"/>
+    <topic label="Prerequisites" href="index.html#autotoc_md10"/>
+    <topic label="Building smax-postgres" href="index.html#autotoc_md12"/>
+    <topic label="Installation" href="index.html#autotoc_md14">
+      <topic label="Staging / advanced installation" href="index.html#autotoc_md15"/>
+      <topic label="Standard error/output with SystemD integration" href="index.html#autotoc_md16"/>
+      <topic label="Initial setup of the SQL database" href="index.html#autotoc_md17"/>
+    <topic label="Database organization (for clients)" href="index.html#autotoc_md19"/>
+    <topic label="Configuration Reference" href="index.html#autotoc_md21">
+      <topic label="Database configuration options" href="index.html#autotoc_md22">
+        <topic label="smax_server &lt;host&gt;" href="index.html#autotoc_md23"/>
+        <topic label="sql_auth &lt;password&gt;" href="index.html#autotoc_md24"/>
+        <topic label="sql_db &lt;db-name&gt;" href="index.html#autotoc_md25"/>
+        <topic label="sql_server &lt;host&gt;" href="index.html#autotoc_md26"/>
+        <topic label="sql_user &lt;user-name&gt;" href="index.html#autotoc_md27"/>
+        <topic label="use_hypertables &lt;1|0&gt;" href="index.html#autotoc_md28"/>
       </topic>
-      <topic label="Update frequency options" href="index.html#autotoc_md26">
-        <topic label="interval specification" href="index.html#autotoc_md27"/>
-        <topic label="&lt;tt&gt;snapshot_interval &lt;interval&gt;&lt;/tt&gt;" href="index.html#autotoc_md28"/>
-        <topic label="&lt;tt&gt;update_interval &lt;interval&gt;&lt;/tt&gt;" href="index.html#autotoc_md29"/>
+      <topic label="Update frequency options" href="index.html#autotoc_md29">
+        <topic label="interval specification" href="index.html#autotoc_md30"/>
+        <topic label="snapshot_interval &lt;interval&gt;" href="index.html#autotoc_md31"/>
+        <topic label="update_interval &lt;interval&gt;" href="index.html#autotoc_md32"/>
       </topic>
-      <topic label="Variable-specific options" href="index.html#autotoc_md30">
-        <topic label="glob patterns" href="index.html#autotoc_md31"/>
-        <topic label="&lt;tt&gt;always &lt;pattern&gt;&lt;/tt&gt;" href="index.html#autotoc_md32"/>
-        <topic label="&lt;tt&gt;exclude &lt;pattern&gt;&lt;/tt&gt;" href="index.html#autotoc_md33"/>
-        <topic label="&lt;tt&gt;include &lt;pattern&gt;&lt;/tt&gt;" href="index.html#autotoc_md34"/>
-        <topic label="&lt;tt&gt;max_age &lt;interval&gt;&lt;/tt&gt;" href="index.html#autotoc_md35"/>
-        <topic label="&lt;tt&gt;max_size &lt;bytes&gt;&lt;/tt&gt;" href="index.html#autotoc_md36"/>
-        <topic label="&lt;tt&gt;sample &lt;n&gt; &lt;pattern&gt;&lt;/tt&gt;" href="index.html#autotoc_md37"/>
+      <topic label="Variable-specific options" href="index.html#autotoc_md33">
+        <topic label="glob patterns" href="index.html#autotoc_md34"/>
+        <topic label="always &lt;pattern&gt;" href="index.html#autotoc_md35"/>
+        <topic label="exclude &lt;pattern&gt;" href="index.html#autotoc_md36"/>
+        <topic label="include &lt;pattern&gt;" href="index.html#autotoc_md37"/>
+        <topic label="max_age &lt;interval&gt;" href="index.html#autotoc_md38"/>
+        <topic label="max_size &lt;bytes&gt;" href="index.html#autotoc_md39"/>
+        <topic label="sample &lt;n&gt; &lt;pattern&gt;" href="index.html#autotoc_md40"/>
       </topic>
     </topic>
   </topic>
   <topic label="Changelog" href="md_CHANGELOG.html">
-    <topic label="[1.0.0] - 2026-02-16" href="md_CHANGELOG.html#autotoc_md1"/>
+    <topic label="[1.0.1] - 2026-06-23" href="md_CHANGELOG.html#autotoc_md1">
+      <topic label="Fixed" href="md_CHANGELOG.html#autotoc_md2"/>
+      <topic label="Changed" href="md_CHANGELOG.html#autotoc_md3"/>
+    </topic>
+    <topic label="[1.0.0] - 2026-02-16" href="md_CHANGELOG.html#autotoc_md4"/>
   </topic>
   <topic label="Contributing to smax-postgres" href="md_CONTRIBUTING.html"/>
   <topic label="Data Structures" href="annotated.html">

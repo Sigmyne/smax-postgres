@@ -25,44 +25,48 @@
 var NAVTREE =
 [
   [ "smax-postgres", "index.html", [
-    [ "Changelog", "../../smax-clib/apidoc/html/md_CHANGELOG.html", [
-      [ "Table of Contents", "index.html#autotoc_md4", null ],
-      [ "Introduction", "index.html#autotoc_md6", null ],
-      [ "Prerequisites", "index.html#autotoc_md7", null ],
-      [ "Building <tt>smax-postgres</tt>", "index.html#autotoc_md9", null ],
-      [ "Installation", "index.html#autotoc_md11", [
-        [ "Staging / advanced installation", "index.html#autotoc_md12", null ],
-        [ "Standard error/output with SystemD integration", "index.html#autotoc_md13", null ],
-        [ "Initial setup of the SQL database", "index.html#autotoc_md14", null ]
+    [ "Changelog", "md_CHANGELOG.html", [
+      [ "Table of Contents", "index.html#autotoc_md7", null ],
+      [ "Introduction", "index.html#autotoc_md9", null ],
+      [ "Prerequisites", "index.html#autotoc_md10", null ],
+      [ "Building <span class=\"tt\">smax-postgres</span>", "index.html#autotoc_md12", null ],
+      [ "Installation", "index.html#autotoc_md14", [
+        [ "Staging / advanced installation", "index.html#autotoc_md15", null ],
+        [ "Standard error/output with SystemD integration", "index.html#autotoc_md16", null ],
+        [ "Initial setup of the SQL database", "index.html#autotoc_md17", null ]
       ] ],
-      [ "Database organization (for clients)", "index.html#autotoc_md16", null ],
-      [ "Configuration Reference", "index.html#autotoc_md18", [
-        [ "Database configuration options", "index.html#autotoc_md19", [
-          [ "<tt>smax_server <host></tt>", "index.html#autotoc_md20", null ],
-          [ "<tt>sql_auth <password></tt>", "index.html#autotoc_md21", null ],
-          [ "<tt>sql_db</tt> <db-name>`", "index.html#autotoc_md22", null ],
-          [ "<tt>sql_server <host></tt>", "index.html#autotoc_md23", null ],
-          [ "<tt>sql_user <user-name></tt>", "index.html#autotoc_md24", null ],
-          [ "<tt>use_hypertables <1|0></tt>", "index.html#autotoc_md25", null ]
+      [ "Database organization (for clients)", "index.html#autotoc_md19", null ],
+      [ "Configuration Reference", "index.html#autotoc_md21", [
+        [ "Database configuration options", "index.html#autotoc_md22", [
+          [ "<span class=\"tt\">smax_server &lt;host&gt;</span>", "index.html#autotoc_md23", null ],
+          [ "<span class=\"tt\">sql_auth &lt;password&gt;</span>", "index.html#autotoc_md24", null ],
+          [ "<span class=\"tt\">sql_db &lt;db-name&gt;</span>", "index.html#autotoc_md25", null ],
+          [ "<span class=\"tt\">sql_server &lt;host&gt;</span>", "index.html#autotoc_md26", null ],
+          [ "<span class=\"tt\">sql_user &lt;user-name&gt;</span>", "index.html#autotoc_md27", null ],
+          [ "<span class=\"tt\">use_hypertables &lt;1|0&gt;</span>", "index.html#autotoc_md28", null ]
         ] ],
-        [ "Update frequency options", "index.html#autotoc_md26", [
-          [ "interval specification", "index.html#autotoc_md27", null ],
-          [ "<tt>snapshot_interval <interval></tt>", "index.html#autotoc_md28", null ],
-          [ "<tt>update_interval <interval></tt>", "index.html#autotoc_md29", null ]
+        [ "Update frequency options", "index.html#autotoc_md29", [
+          [ "interval specification", "index.html#autotoc_md30", null ],
+          [ "<span class=\"tt\">snapshot_interval &lt;interval&gt;</span>", "index.html#autotoc_md31", null ],
+          [ "<span class=\"tt\">update_interval &lt;interval&gt;</span>", "index.html#autotoc_md32", null ]
         ] ],
-        [ "Variable-specific options", "index.html#autotoc_md30", [
-          [ "glob patterns", "index.html#autotoc_md31", null ],
-          [ "<tt>always <pattern></tt>", "index.html#autotoc_md32", null ],
-          [ "<tt>exclude <pattern></tt>", "index.html#autotoc_md33", null ],
-          [ "<tt>include <pattern></tt>", "index.html#autotoc_md34", null ],
-          [ "<tt>max_age <interval></tt>", "index.html#autotoc_md35", null ],
-          [ "<tt>max_size <bytes></tt>", "index.html#autotoc_md36", null ],
-          [ "<tt>sample <n> <pattern></tt>", "index.html#autotoc_md37", null ]
+        [ "Variable-specific options", "index.html#autotoc_md33", [
+          [ "glob patterns", "index.html#autotoc_md34", null ],
+          [ "<span class=\"tt\">always &lt;pattern&gt;</span>", "index.html#autotoc_md35", null ],
+          [ "<span class=\"tt\">exclude &lt;pattern&gt;</span>", "index.html#autotoc_md36", null ],
+          [ "<span class=\"tt\">include &lt;pattern&gt;</span>", "index.html#autotoc_md37", null ],
+          [ "<span class=\"tt\">max_age &lt;interval&gt;</span>", "index.html#autotoc_md38", null ],
+          [ "<span class=\"tt\">max_size &lt;bytes&gt;</span>", "index.html#autotoc_md39", null ],
+          [ "<span class=\"tt\">sample &lt;n&gt; &lt;pattern&gt;</span>", "index.html#autotoc_md40", null ]
         ] ]
       ] ],
-      [ "[1.0.0] - 2026-02-16", "../../smax-clib/apidoc/html/md_CHANGELOG.html#autotoc_md1", null ]
+      [ "[1.0.1] - 2026-06-23", "md_CHANGELOG.html#autotoc_md1", [
+        [ "Fixed", "md_CHANGELOG.html#autotoc_md2", null ],
+        [ "Changed", "md_CHANGELOG.html#autotoc_md3", null ]
+      ] ],
+      [ "[1.0.0] - 2026-02-16", "md_CHANGELOG.html#autotoc_md4", null ]
     ] ],
-    [ "Contributing to smax-postgres", "../../smax-clib/apidoc/html/md_CONTRIBUTING.html", null ],
+    [ "Contributing to smax-postgres", "md_CONTRIBUTING.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -88,5 +92,6 @@ var NAVTREEINDEX =
 "annotated.html"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+const SYNCONMSG = 'click to disable panel synchronization';
+const SYNCOFFMSG = 'click to enable panel synchronization';
+const LISTOFALLMEMBERS = 'List of all members';

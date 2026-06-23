@@ -1,0 +1,8 @@
+var searchData=
+[
+  ['of_20contents_0',['Table of Contents',['../index.html#autotoc_md7',1,'']]],
+  ['of_20the_20sql_20database_1',['Initial setup of the SQL database',['../index.html#autotoc_md17',1,'']]],
+  ['options_2',['options',['../index.html#autotoc_md22',1,'Database configuration options'],['../index.html#autotoc_md29',1,'Update frequency options'],['../index.html#autotoc_md33',1,'Variable-specific options']]],
+  ['organization_20for_20clients_3',['Database organization (for clients)',['../index.html#autotoc_md19',1,'']]],
+  ['output_20with_20systemd_20integration_4',['Standard error/output with SystemD integration',['../index.html#autotoc_md16',1,'']]]
+];

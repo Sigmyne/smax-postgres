@@ -1,4 +1,4 @@
-.TH "src/logger-config.c" 3 "Version v0.9" "smax-postgres" \" -*- nroff -*-
+.TH "src/logger-config.c" 3 "Version v1.1" "smax-postgres" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -106,6 +106,7 @@ Configuration support for smaxLogger\&.
 .PP 
 .SS "\fBlogger_properties\fP * getLogProperties (const char * id)"
 Returns the currently configured logging properties for an SMA-X variable\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -120,6 +121,7 @@ Pointer to the logging properties data structure, or NULL if there isn't one or 
 
 .SS "int getMaxLogSize ()"
 Returns the maximum byte size for automatically logged variables, in their binary storage format\&. For variables that are sampled at some interval
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -129,6 +131,7 @@ Returns the maximum byte size for automatically logged variables, in their binar
 
 .SS "int getSampleCount (const \fBVariable\fP * u)"
 Returns the number of samples that should be logged into the SQL database for a given SMA-X variable, which may be different from the element count of the variable by a configured downsampling factor\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -142,9 +145,10 @@ the number of samples that should be stored in the SQL database, or 0 if the arg
 .PP
 
 .PP
-References \fBVariable::field\fP, \fBVariable::sampling\fP, and \fBxGetFieldCount()\fP\&.
+References \fBVariable::field\fP, and \fBVariable::sampling\fP\&.
 .SS "const char * getSMAXServerAddress ()"
 Returns the SMA-X server host name or IP address\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -157,10 +161,9 @@ the host name or IP address of the SMA-X server
 .RE
 .PP
 
-.PP
-References \fBSMAX_DEFAULT_HOSTNAME\fP\&.
 .SS "int getSnapshotInterval ()"
 Returns the currently configured snapshot interval\&. Snapshots will be taken in the regular update cycle, whenever the time since the last snapshot equals or exceeds the set interval\&. For example, if the update interval is '2m', and the snapshot interval is '11m', then snapshots will be generated at every 6th update cycle, that is at every 12 minutes\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -175,6 +178,7 @@ getUpdateUniterval()
 
 .SS "const char * getSQLAuth ()"
 Returns the SQL database password to use when connecting to the database\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -189,6 +193,7 @@ The password to use for logging into the SQL database, or NULL to use passwordle
 
 .SS "const char * getSQLDatabaseName ()"
 Returns the SQL database to use when connecting to the database\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -205,6 +210,7 @@ The database name to select for logging into the SQL server
 References \fBDEFAULT_SQL_DB\fP\&.
 .SS "const char * getSQLServerAddress ()"
 Returns the SQL server host name or IP address\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -221,6 +227,7 @@ the host name or IP address of the SQL server
 References \fBDEFAULT_SQL_SERVER\fP\&.
 .SS "const char * getSQLUserName ()"
 Returns the SQL user name to use when connecting to the database\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -237,6 +244,7 @@ The username to use for logging into the SQL database
 References \fBDEFAULT_SQL_USER\fP\&.
 .SS "int getUpdateInterval ()"
 Returns the currently configured update interval\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -251,6 +259,7 @@ getUpdateUniterval()
 
 .SS "\fBboolean\fP isLogging (const char * id, double updateTime)"
 Checks if a given variable is to be logged into the SQL database
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -269,6 +278,7 @@ TRUE (1) if the variable should be logged into the SQL database, or else FALSE (
 References \fBlogger_properties::exclude\fP, \fBFALSE\fP, \fBlogger_properties::force\fP, \fBgetLogProperties()\fP, \fBLOOKUP_INITIAL_CAPACITY\fP, and \fBTRUE\fP\&.
 .SS "\fBboolean\fP isUseHyperTables ()"
 Checks whether to use TimescaleDB hypertables\&. TimescaleDB is available for PostgreSQL only, so the setting will not affect other database backends\&.
+
 .PP
 \fBReturns\fP
 .RS 4
@@ -283,6 +293,7 @@ TRUE (1) if to create hypertables for new variables, if possible, or else FALSE 
 
 .SS "int parseConfig (const char * filename)"
 Pases settings from a specified configuration file
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -296,9 +307,10 @@ Pases settings from a specified configuration file
 .PP
 
 .PP
-References \fBdprintf\fP, \fBFALSE\fP, \fBMIN_AGE\fP, \fBMIN_SIZE\fP, \fBMINUTE\fP, \fBsetSMAXServerAddress()\fP, \fBsetSQLAuth()\fP, \fBsetSQLDatabaseName()\fP, \fBsetSQLServerAddress()\fP, \fBsetSQLUserName()\fP, \fBTRUE\fP, and \fBX_SEP\fP\&.
+References \fBdprintf\fP, \fBFALSE\fP, \fBMIN_AGE\fP, \fBMIN_SIZE\fP, \fBMINUTE\fP, \fBsetSMAXServerAddress()\fP, \fBsetSQLAuth()\fP, \fBsetSQLDatabaseName()\fP, \fBsetSQLServerAddress()\fP, \fBsetSQLUserName()\fP, and \fBTRUE\fP\&.
 .SS "int setSMAXServerAddress (const char * addr)"
 Sets the SMA-X server address or IP\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -318,6 +330,7 @@ Sets the SMA-X server address or IP\&.
 
 .SS "int setSQLAuth (const char * passwd)"
 Sets the SQL database password to use when connecting to the database\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -332,10 +345,13 @@ Sets the SQL database password to use when connecting to the database\&.
 \fBSee also\fP
 .RS 4
 \fBgetSQLAuth()\fP 
+
 .PP
 \fBsetSQLDatabaseName()\fP 
+
 .PP
 \fBsetSQLUserName()\fP 
+
 .PP
 \fBsetSQLServerAddress()\fP 
 .RE
@@ -343,6 +359,7 @@ Sets the SQL database password to use when connecting to the database\&.
 
 .SS "int setSQLDatabaseName (const char * name)"
 Sets the SQL database name to select when connecting to the SQL server\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -357,10 +374,13 @@ Sets the SQL database name to select when connecting to the SQL server\&.
 \fBSee also\fP
 .RS 4
 \fBgetSQLDatabaseName()\fP 
+
 .PP
 \fBsetSQLUserName()\fP 
+
 .PP
 \fBsetSQLAuth()\fP 
+
 .PP
 \fBsetSQLServerAddress()\fP 
 .RE
@@ -368,6 +388,7 @@ Sets the SQL database name to select when connecting to the SQL server\&.
 
 .SS "int setSQLServerAddress (const char * addr)"
 Sets the SQL server address or IP\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -382,10 +403,13 @@ Sets the SQL server address or IP\&.
 \fBSee also\fP
 .RS 4
 \fBgetSQLServerAddress()\fP 
+
 .PP
 \fBsetSQLDatabaseName()\fP 
+
 .PP
 \fBsetSQLUserName()\fP 
+
 .PP
 \fBsetSQLAuth()\fP 
 .RE
@@ -393,6 +417,7 @@ Sets the SQL server address or IP\&.
 
 .SS "int setSQLUserName (const char * name)"
 Sets the SQL user name to use when connecting to the database\&.
+
 .PP
 \fBParameters\fP
 .RS 4
@@ -407,10 +432,13 @@ Sets the SQL user name to use when connecting to the database\&.
 \fBSee also\fP
 .RS 4
 \fBgetSQLUserName()\fP 
+
 .PP
 \fBsetSQLDatabaseName()\fP 
+
 .PP
 \fBsetSQLAuth()\fP 
+
 .PP
 \fBsetSQLServerAddress()\fP 
 .RE
@@ -418,6 +446,7 @@ Sets the SQL user name to use when connecting to the database\&.
 
 .SS "void setUseHyperTables (\fBboolean\fP value)"
 Sets whether to use TimescaleDB hypertables extension\&. TimescaleDB is available for PostgreSQL only, so the setting will not affect other database backends\&.
+
 .PP
 \fBParameters\fP
 .RS 4

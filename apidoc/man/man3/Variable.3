@@ -1,4 +1,4 @@
-.TH "Variable" 3 "Version v0.9" "smax-postgres" \" -*- nroff -*-
+.TH "Variable" 3 "Version v1.1" "smax-postgres" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -7,7 +7,7 @@ Variable
 .br
 .PP
 .PP
-\fC#include <smax\-postgres\&.h>\fP
+\fR#include <smax\-postgres\&.h>\fP
 .SS "Data Fields"
 
 .in +1c
@@ -26,7 +26,7 @@ Variable
 .ti -1c
 .RI "struct \fBVariable\fP * \fBnext\fP"
 .br
-.RI "Pointer to the next \fBVariable\fP in the linked lisr, or NULL if no more\&. "
+.RI "Pointer to the next \fBVariable\fP in the linked list, or NULL if no more\&. "
 .ti -1c
 .RI "int \fBsampling\fP"
 .br
@@ -34,7 +34,7 @@ Variable
 .ti -1c
 .RI "char * \fBunit\fP"
 .br
-.RI "Physical unit name (if any) "
+.RI "Physical unit name (if any)\&. "
 .ti -1c
 .RI "time_t \fBupdateTime\fP"
 .br
