@@ -57,12 +57,6 @@ jobs:
     - name: install doxygen
       run: sudo apt-get install doxygen
 
-    - name: Checkout smax-postgres
-      uses: actions/checkout@v6
-      with:
-        repository: Sigmyne/smax-postgres
-        path: smax-postgres
-
     - name: Check out xchange dependency
       uses: actions/checkout@v6
       with:
@@ -80,15 +74,30 @@ jobs:
       with:
         repository: Sigmyne/smax-clib
         path: smax-clib   
+        
+    - name: Checkout smax-postgres
+      uses: actions/checkout@v6
+      with:
+        repository: Sigmyne/smax-postgres
+        path: smax-postgres
+    
+    - name: Generate xchange apidocs
+      uses: mattnotmitt/doxygen-action@edge
+      with:
+        additional-packages: font-roboto
+        working-directory: ./xchange/doc
 
-    - name: Generate xchange docs
-      run: make -C xchange dox 
+    - name: Generate RedisX apidocs
+      uses: mattnotmitt/doxygen-action@edge
+      with:
+        additional-packages: font-roboto
+        working-directory: ./redisx/doc
 
-    - name: Generate RedisX docs
-      run: make -C redisx dox  
-
-    - name: Generate smax-clib docs
-      run: make -C smax-clib dox  
+    - name: Generate smax-clib apidocs
+      uses: mattnotmitt/doxygen-action@edge
+      with:
+        additional-packages: font-roboto
+        working-directory: ./smax-clib
 
     - name: Generate headless README for smax-postgres
       run: make -C smax-postgres README-smax-postgres.md
