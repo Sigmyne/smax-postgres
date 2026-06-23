@@ -10,6 +10,10 @@
 
 # smax-postgres
 
+<a href="https://doi.org/10.5281/zenodo.20819107">
+ <img src="resources/zenodo.20819107.svg" alt="DOI: 10.5281/zenodo.20819107"/>
+</a>
+
 Record [SMA-X](https://docs.google.com/document/d/1eYbWDClKkV7JnJxv4MxuNBNV47dFXuUWu7C4Ve_YTf0/edit?usp=sharing) 
 history in PostgreSQL / TimescaleDB. It is free to use, in any way you like, without licensing restrictions.
 
