@@ -39,22 +39,22 @@ jobs:
         sudo apt-get install libpq-dev libsystemd-dev libpopt-dev doxygen
 
     - name: Check out smax-clib 
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Check out xchange 
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Sigmyne/xchange
         path: xchange
 
     - name: Check out RedisX
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Sigmyne/redisx
         path: redisx
 
     - name: Check out smax-clib
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Sigmyne/smax-clib
         path: smax-clib
