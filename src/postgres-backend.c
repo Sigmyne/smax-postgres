@@ -70,7 +70,7 @@ typedef struct {
   int cols;                     ///< Number of array elements (columns)
   char sqlType[SQL_TYPE_LEN];   ///< The SQL storage type
 
-  boolean hasMeta;              ///< (boolean) if we have metadata available
+  XBoolean hasMeta;             ///< (boolean) if we have metadata available
   int metaVersion;              ///< metadata serial number
   int sampling;                 ///< the current sampling interval for array data
   int ndim;                     ///< array dimensions (may be 0 for scalars)
@@ -615,7 +615,7 @@ static size_t appendValue(const void *data, XType type, char *dst, size_t len) {
 
   switch (type) {
 
-    case X_BOOLEAN: return pos + x_snprintf(dst, len - pos, "%s",*(boolean *) data ? "true" : "false");
+    case X_BOOLEAN: return pos + x_snprintf(dst, len - pos, "%s",*(XBoolean *) data ? "true" : "false");
 
     case X_BYTE: return pos + x_snprintf(dst, len - pos, "%hhd", *(char *) data);
 
@@ -1005,6 +1005,7 @@ static int sqlCreateMetaTable(int id) {
 static int sqlAddMeta(const Variable *u, TableDescriptor *t) {
   const XField *f = &u->field;
   size_t l = 0;
+  struct tm tm = {};
   int step, ndim;
 
   if(!u || !t) {
@@ -1023,7 +1024,8 @@ static int sqlAddMeta(const Variable *u, TableDescriptor *t) {
   ensureCommandCapacity(200 + META_SHAPE_LEN + META_UNIT_LEN);
   l += x_snprintf(&cmd[l], cmdSize - l, "INSERT INTO " META_NAME_PATTERN " VALUES(DEFAULT" SQL_SEP, t->index);
 
-  l += strftime(&cmd[l], cmdSize - l, SQL_DATE_FORMAT, gmtime(&u->updateTime));
+  gmtime_r(&u->updateTime, &tm);
+  l += strftime(&cmd[l], cmdSize - l, SQL_DATE_FORMAT, &tm);
 
   l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "%d", step);
   l += x_snprintf(&cmd[l], cmdSize - l, SQL_SEP "%d", ndim);
@@ -1103,7 +1105,7 @@ static int sqlGetLastMeta(TableDescriptor *t) {
 }
 
 
-static boolean isMetaUpdate(const Variable *u, const TableDescriptor *t) {
+static XBoolean isMetaUpdate(const Variable *u, const TableDescriptor *t) {
   const XField *f = &u->field;
   int i;
   int ndim = f->ndim;
@@ -1455,6 +1457,7 @@ static int sqlAddValues(const Variable *u) {
   TableDescriptor *t;
   int len;
   size_t pos = 0;
+  struct tm tm = {};
   char sqlType[SQL_TYPE_LEN];
 
   if(!u) {
@@ -1506,9 +1509,11 @@ static int sqlAddValues(const Variable *u) {
 
   ensureCommandCapacity(200 + SQL_TABLE_NAME_LEN + getSampleCount(u) * len);
 
+  gmtime_r(&u->grabTime, &tm);
+
   /* Now insert the data */
   pos += x_snprintf(&cmd[pos], cmdSize - pos, "INSERT INTO " TABLE_NAME_PATTERN " VALUES(", t->index);
-  pos += strftime(&cmd[pos], cmdSize - pos, SQL_DATE_FORMAT, gmtime(&u->grabTime));
+  pos += strftime(&cmd[pos], cmdSize - pos, SQL_DATE_FORMAT, &tm);
   pos += x_snprintf(&cmd[pos], cmdSize - pos, SQL_SEP "'%d'", (int) (u->grabTime - u->updateTime));
   pos += appendValues(u, &cmd[pos], cmdSize - pos);
 
@@ -1539,7 +1544,7 @@ static int sqlAddValues(const Variable *u) {
 }
 
 
-static boolean sqlDeleteVar(const char *id) {
+static XBoolean sqlDeleteVar(const char *id) {
   int tid, n = 0;
 
   if(!id) return FALSE;
