@@ -40,25 +40,25 @@ jobs:
         sudo apt-get install libpq-dev libsystemd-dev libpopt-dev
     
     - name: Check out smax-postgres
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Sigmyne/smax-postgres
         path: smax-postgres
     
     - name: Check out smax-clib
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Sigmyne/smax-clib
         path: smax-clib
       
     - name: Check out xchange dependency
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Sigmyne/xchange
         path: xchange
     
     - name: Check out RedisX dependency
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         repository: Sigmyne/redisx
         path: redisx

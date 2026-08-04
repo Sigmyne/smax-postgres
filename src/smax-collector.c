@@ -75,7 +75,7 @@ int initCollector() {
 
   int i, status;
 
-  //xDebug = TRUE;
+  //xSetDebug(TRUE);
   //smaxSetVerbose(TRUE);
   smaxSetPipelined(TRUE);
   smaxSetResilient(TRUE);

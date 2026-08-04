@@ -20,7 +20,6 @@
 #include <math.h>
 #include <pthread.h>
 #include <time.h>
-#include <semaphore.h>
 #include <search.h>
 #include <fnmatch.h>
 #include <popt.h>
@@ -34,7 +33,7 @@
 #include "smax-postgres.h"
 
 #ifndef FIX_SCALAR_DIMS
-#  define FIX_SCALAR_DIMS       0                         ///< Whether singled-element 1D data should be stored as scalars
+#  define FIX_SCALAR_DIMS       0                         ///< Whether single-element 1D data should be stored as scalars
 #endif
 
 #define POSTGRES                1                         ///< Use PostgreSQL data types from sql-types.h
@@ -50,7 +49,7 @@
 #define META_NAME_PATTERN       TABLE_NAME_PATTERN "_meta"  ///< pattern for metadata table names
 #define META_SERIAL_ID           "serial"                 ///< column name/id for metadata serial numbers
 #define META_SHAPE_LEN          X_MAX_STRING_DIMS         ///< Maximum number of dimensions to store
-#define META_UNIT_LEN           32                        ///< Maximum size for sotring physical units.
+#define META_UNIT_LEN           32                        ///< Maximum size for storing physical units.
 
 #define COL_NAME_STEM           "c"                       ///< prefix for array data columns
 
@@ -114,15 +113,15 @@ static size_t appendValue(const void *data, XType type, char *dst, size_t len);
 static size_t appendValues(const Variable *u, char *dst, size_t len);
 
 // Local variables --------------------------------------------------------->
-static pthread_mutex_t qMutex = PTHREAD_MUTEX_INITIALIZER;  ///< Queue mutex
-static sem_t qAvailable;                                    ///< {mut} Counting semaphore for the queue
-static Variable *first = NULL, *last = NULL;                ///< {mut} Queue head and tail elements
+static pthread_mutex_t qMutex = PTHREAD_MUTEX_INITIALIZER;    ///< Queue mutex
+static pthread_cond_t qAvailable = PTHREAD_COND_INITIALIZER;  ///< {mut} Counting semaphore for the queue
+static Variable *first = NULL, *last = NULL;                  ///< {mut} Queue head and tail elements
 
 static PGconn *sql_db;      ///< The current SQL connection information
 static char *cmd;           ///< Buffer for assembling long SQL commands in.
-static size_t cmdSize;         ///< [bytes] allocation size for cmd
+static size_t cmdSize;      ///< [bytes] allocation size for cmd
 
-static struct hsearch_data lookup;                          ///< Local cache hash table for stored variabled
+static struct hsearch_data lookup;                          ///< Local cache hash table for stored variables
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;   ///< mutex for atomic transaction blocks.
 
 
@@ -132,7 +131,7 @@ static int getStringType(int maxlen, char *buf) {
     return -1;
   }
 
-  strncpy(buf, SQL_TEXT, SQL_TYPE_LEN);
+  x_snprintf(buf, SQL_TYPE_LEN, SQL_TEXT);
   return 0;
 }
 
@@ -148,17 +147,14 @@ void *SQLThread() {
   if(sqlConnectRetry(CONNECT_RETRY_ATTEMPTS) != SUCCESS_RETURN) exit(ERROR_EXIT);
 
 # if FIX_SCALAR_DIMS
-  ensureCommandCapacity(100 + SQL_TABLE_NAME_LEN)
+  ensureCommandCapacity(100 + SQL_TABLE_NAME_LEN);
 
   fprintf(stderr, "!FIX! all scalar dims -> 0.\n");
-  x_snprintf(cmd, cmdSize, "UPDATE " META_NAME_PATTERN " SET ndim = 0, shape = NULL WHERE ndim = 1 AND shape = '1';", t->index);
+  x_snprintf(cmd, cmdSize, "UPDATE var_*_meta SET ndim = 0, shape = NULL WHERE ndim = 1 AND shape = '1';");
   sqlExecSimple(cmd);
 # endif
 
   initCache();
-
-  // Initialize a the counting sempahore for the queue.
-  sem_init(&qAvailable, 0, 0);
 
 # if USE_SYSTEMD
   sd_notify(0, "READY=1");
@@ -169,11 +165,13 @@ void *SQLThread() {
   while(TRUE) {
     Variable *u;
 
-    // Wait until something has been placed on the queue
-    while(sem_wait(&qAvailable));
-
     // Take the first element from the queue...
     lockQueue();
+
+    // Wait until something has been placed on the queue
+    if(pthread_cond_wait(&qAvailable, &qMutex) != 0)
+      exit(EINTR); // If interrupted then exit.
+
     u = first;
     first = first->next;
     if(!first) last = NULL;
@@ -226,7 +224,7 @@ int insertQueue(Variable *u) {
   if(!first) first = u;
   else last->next = u;
   last = u;
-  sem_post(&qAvailable);
+  pthread_cond_broadcast(&qAvailable);
   unlockQueue();
 
   return SUCCESS_RETURN;
@@ -247,10 +245,10 @@ static int shorten(char *str, const char *match, const char *replacement) {
   char *from = strstr(str, match);
   if(from) {
     char *rest = strdup(from + strlen(match));
-    if(rest) {
-      sprintf(from, "%s%s", replacement, rest);
-      free(rest);
-    }
+    if(!rest) return -1;
+
+    sprintf(from, "%s%s", replacement, rest);
+    free(rest);
   }
 
   return 0;
@@ -260,7 +258,7 @@ static int shorten(char *str, const char *match, const char *replacement) {
 /**
  * Initializes the local table ID lookup for variables, for efficient data insertions.
  * It queries the SQL database for existing tables (variables) to create the cache.
- * The cache can accomodate up to CACHE_SIZE variables.in the lookup, so make sure
+ * The cache can accomodate up to CACHE_SIZE variables in the lookup, so make sure
  * CACHE_SIZE is defined appropriately.
  *
  */
@@ -272,6 +270,7 @@ static void initCache() {
   success = sqlExec("SELECT name, tid FROM " MASTER_TABLE ";", &tables);
 
   if (!success) {
+    fprintf(stderr, "ERROR! initCache: failed to query existing titles from table '%s'.\n", MASTER_TABLE);
     PQfinish(sql_db);
     exit(ERROR_EXIT);
   }
@@ -302,7 +301,7 @@ static void initCache() {
 
     id = strdup(id);
     if (id == NULL) {
-      perror("ERROR: duplicate table ID");
+      perror("ERROR: alloc copy of table ID");
       exit(errno);
     };
 
@@ -328,7 +327,7 @@ static void initCache() {
 
       // Use the first data column to determine how many data columns and what type they are.
       if(strncmp(COL_NAME_STEM "0", colName, sizeof(COL_NAME_STEM)) == 0) {
-        char *storeType = PQgetvalue(columns, k, 1);
+        const char *storeType = PQgetvalue(columns, k, 1);
         int j;
 
         firstDataCol = k;
@@ -338,8 +337,8 @@ static void initCache() {
         for(j = 0; j < max && storeType[j]; j++) type[j] = toupper(storeType[j]);
 
         // Substitute short forms
-        shorten(storeType, "CHARACTER VARIABLE", "VARCHAR");
-        shorten(storeType, "CHARCTER", "CHAR");
+        shorten(type, "CHARACTER VARIABLE", "VARCHAR");
+        shorten(type, "CHARACTER", "CHAR");
 
         break;
       }
@@ -399,7 +398,7 @@ static void initCache() {
  *
  *  \param n        Number of bytes needed in the cmd variable.
  *
- *  \return         SUCCESS_RETURN (0) if cmd can accomonade the requested number of
+ *  \return         SUCCESS_RETURN (0) if cmd can accommodate the requested number of
  *                  bytes, or ERROR_RETURN if the (re)allocation failed.
  */
 static int ensureCommandCapacity(int n) {
@@ -407,8 +406,9 @@ static int ensureCommandCapacity(int n) {
   if(n < MIN_CMD_SIZE) n = MIN_CMD_SIZE;
 
   if(!cmd) {
+    cmd = malloc(n);
+    x_check_alloc(cmd);
     cmdSize = n;
-    cmd = malloc(cmdSize);
   }
   else if(n > cmdSize) {
     cmdSize = n;
@@ -416,11 +416,6 @@ static int ensureCommandCapacity(int n) {
     x_check_alloc(cmd);
 
     dprintf("Growing command buffer to %zu bytes.\n", cmdSize);
-  }
-
-  if(!cmd) {
-    fprintf(stderr, "ERROR! malloc command (%d bytes).\n", n);
-    exit(ERROR_EXIT);
   }
 
   return SUCCESS_RETURN;
@@ -574,7 +569,7 @@ static size_t appendValues(const Variable *u, char *dst, size_t len) {
     size_t pos = 0;
     char *data = (char *) f->value;
     int i, n = getSampleCount(u);
-    for(i = 0; i < n && pos < len; i++) pos += appendValue(&data[i * step * eSize], f->type, dst, (int) (len - pos));
+    for(i = 0; i < n && pos < len; i++) pos += appendValue(&data[i * step * eSize], f->type, dst + pos, (int) (len - pos));
     return pos;
   }
 
@@ -613,7 +608,7 @@ static size_t appendValue(const void *data, XType type, char *dst, size_t len) {
   dst += pos;
 
   if(xIsCharSequence(type)) {
-    return printSQLString((char *) data, xElementSizeOf(type), dst, len - pos);
+    return pos + printSQLString((char *) data, xElementSizeOf(type), dst, len - pos);
   }
 
   if (!data) return pos + x_snprintf(dst, len - pos, "NULL");
@@ -650,7 +645,7 @@ static size_t appendValue(const void *data, XType type, char *dst, size_t len) {
 
     case X_STRING: {
       const char *s = *(char **) data;
-      return printSQLString(s, strlen(s), dst, len - pos);
+      return pos + printSQLString(s, strlen(s), dst, len - pos);
     }
     default:
       fprintf(stderr, "WARNING! addValue(): Unknown data type (%d)\n", type);
@@ -694,7 +689,7 @@ static TableDescriptor *getCachedTableDescriptor(const char *name) {
  *
  * \param u     Pointer to the variable
  *
- * \return      The corresponfing database table descritor or NULL if there was an error.
+ * \return      The corresponding database table descriptor or NULL if there was an error.
  */
 static TableDescriptor *getTableDescriptor(const Variable *u) {
   TableDescriptor *t;
@@ -875,8 +870,8 @@ static int sqlBootstrap(const char *owner, const char *passwd) {
  * Sets up (bootstraps) a clean new database
  *
  * @param owner   User that will own the database (it must have privileges for creating the database)
- * @param passwd  Password for oqner
- * @return  SUUCCESS_RETURN if successful, or else ERROR_RETURN.
+ * @param passwd  Password for owner
+ * @return  SUCCESS_RETURN if successful, or else ERROR_RETURN.
  */
 int setupDB(const char *owner, const char *passwd) {
   int status;
@@ -1135,7 +1130,7 @@ static XBoolean isMetaUpdate(const Variable *u, const TableDescriptor *t) {
   if(ndim < 1) ndim = 0;
   else if(ndim == 1 && f->sizes[0] <= 1) ndim = 0;
 
-  if(ndim != u->field.ndim) {
+  if(ndim != t->ndim) {
     dprintf("! Found new dimensionality for %s\n", u->id);
     return TRUE;
   }
@@ -1172,7 +1167,7 @@ static int sqlExec(const char *sql, PGresult **resp) {
     return FALSE;
   }
 
-  if(!cmd[0]) {
+  if(!sql[0]) {
     errno = EAGAIN;
     return FALSE;
   }
@@ -1276,13 +1271,13 @@ static int sqlConnect(const char *userName, const char *auth, const char *dbName
 static int sqlConnectRetry(int attempts) {
   int i;
   // Connect to the database (and keep retrying...)
-  for(i = 1; i < attempts; i++) {
+  for(i = 1; i <= attempts; i++) {
     if(sqlConnect(getSQLUserName(), getSQLAuth(), getSQLDatabaseName()) == SUCCESS_RETURN) return SUCCESS_RETURN;
     fprintf(stderr, "Will retry connecting to SQL server in %d seconds (%d of %d)...\n", CONNECT_RETRY_SECONDS, i, attempts);
     sleep(CONNECT_RETRY_SECONDS);
   }
 
-  fprintf(stderr, "ERROR! SQL connection failed after %d attempts. Exiting.\n", i);
+  fprintf(stderr, "ERROR! SQL connection failed after %d attempts. Exiting.\n", attempts);
   errno = ENOTCONN;
   return ERROR_RETURN;
 }
@@ -1295,7 +1290,7 @@ static int sqlConnectRetry(int attempts) {
  *
  *  \param      Pointer to the variable for which to create a new entity in the database.
  *
- *  \return     SUCCESS_RETURN (0) if the variable was successfully added in the databsase
+ *  \return     SUCCESS_RETURN (0) if the variable was successfully added in the database
  *              or ERROR_RETURN (-1) otherwise.
  */
 static int sqlInsertVariable(const Variable *u) {
